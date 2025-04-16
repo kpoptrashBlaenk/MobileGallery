@@ -6,15 +6,20 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
+    "build:ios": "npx ionic cap open ios",
+    "build:android": "npx ionic cap open android",
+    "build:all": "vue-tsc && vite build && npx ionic cap open android && npx ionic cap open ios",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@capacitor/android": "7.2.0",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "7.2.0",
     "@capacitor/haptics": "7.0.1",
+    "@capacitor/ios": "7.2.0",
     "@capacitor/keyboard": "7.0.1",
     "@capacitor/status-bar": "7.0.1",
     "@ionic/vue": "^8.0.0",

@@ -2,7 +2,7 @@ import dbQuery from '@/utils/query'
 
 // Get all from album table
 export async function getAllAlbums() {
-  const query = `SELECT id as value, name as label FROM album ORDER BY label`
+  const query = `SELECT id, name FROM album ORDER BY label`
 
   const params: any[] = []
 

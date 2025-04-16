@@ -2,7 +2,7 @@ import dbQuery from "@/utils/query"
 
 // Get all from location table
 export async function getAllLocations() {
-    const query = `SELECT id as value, name as label FROM location ORDER BY label`
+    const query = `SELECT id, name FROM location ORDER BY label`
   
     const params: any[] = []
   

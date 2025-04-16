@@ -2,7 +2,7 @@ import dbQuery from '@/utils/query'
 
 // Get all people from person table
 export async function getAllPeople() {
-  const query = `SELECT id AS value, name AS label FROM people ORDER BY label`
+  const query = `SELECT id, name FROM people ORDER BY label`
 
   const params: any[] = []
 

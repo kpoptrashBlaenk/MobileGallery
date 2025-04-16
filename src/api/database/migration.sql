@@ -9,9 +9,9 @@ CREATE TABLE
         name VARCHAR(255) NOT NULL UNIQUE
     );
 
--- People Table
+-- Person Table
 CREATE TABLE
-    people (
+    person (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE
     );
@@ -34,12 +34,12 @@ CREATE TABLE
         location_id INT REFERENCES location (id) NOT NULL
     );
 
--- Media People Relation
+-- Media Person Relation
 CREATE TABLE
-    media_people_relation (
+    media_person_relation (
         media_id INT REFERENCES media (id) ON DELETE CASCADE,
-        people_id INT REFERENCES people (id) ON DELETE CASCADE,
-        PRIMARY KEY (media_id, people_id)
+        person_id INT REFERENCES person (id) ON DELETE CASCADE,
+        PRIMARY KEY (media_id, person_id)
     );
 
 -- Media Album Relation

@@ -1,6 +1,7 @@
 import { NameBody } from '@/types'
 import express, { Request, Response } from 'express'
 import { addAlbum, findAlbumByName, getAllAlbums } from './album'
+import { addLocation, findLocationByName, getAllLocations } from './location'
 import { addPerson, findPersonByName, getAllPeople } from './person'
 
 const router = express.Router()
@@ -89,5 +90,46 @@ router.post('/album/add', async (req: Request, res: Response) => {
   }
 })
 
-  
-  export default router
+// Get all location
+router.get('/location/get', async (req: Request, res: Response) => {
+  try {
+    const location = await getAllLocations()
+
+    res.status(200).json(location.rows)
+    return
+  } catch (error) {
+    console.error(error)
+    res.status(500).json('Error getting location.')
+    return
+  }
+})
+
+// Add a location
+router.post('/location/add', async (req: Request, res: Response) => {
+  const { name }: NameBody = req.body
+
+  if (!name || name.length === 0) {
+    res.status(422).json('No name provided.')
+    return
+  }
+
+  try {
+    const location = await findLocationByName(name)
+
+    if (location.rowCount !== 0) {
+      res.status(409).json('Location exists already.')
+      return
+    }
+
+    await addLocation(name)
+
+    res.status(200).json('Location added successfully.')
+    return
+  } catch (error) {
+    console.error(error)
+    res.status(500).json('Error adding lcoation.')
+    return
+  }
+})
+
+export default router

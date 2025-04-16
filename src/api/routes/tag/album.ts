@@ -9,7 +9,7 @@ export async function getAllAlbums() {
   return await dbQuery(query, params)
 }
 
-// Find an album from album table
+// Find an album from album table using name
 export async function findAlbumByName(name: string) {
   const query = `SELECT * FROM album WHERE name = $1`
 

@@ -1,5 +1,7 @@
 import { MEDIA_BULK_LIMIT } from '@/configs'
+import { DBMedia, DBMediaWithTags } from '@/types'
 import dbQuery from '@/utils/query'
+import { QueryResult } from 'pg'
 
 // Get all medias from media table
 export async function getAllMedias(
@@ -10,7 +12,7 @@ export async function getAllMedias(
   location?: number,
   people?: number[],
   season?: string
-) {
+): Promise<QueryResult<DBMediaWithTags>> {
   let query = `SELECT 
   m.id AS media_id,
   m.path,
@@ -20,18 +22,18 @@ export async function getAllMedias(
   l.name AS location_name,
   COALESCE(
     json_agg(
-      jsonb_build_object('person_id', p.id, 'person_name', p.name)
+      jsonb_build_object('id', p.id, 'name', p.name)
     )
   ) AS people,
   COALESCE(
     json_agg(
-      jsonb_build_object('album_id', a.id, 'album_name', a.name)
+      jsonb_build_object('id', a.id, 'name', a.name)
     )
   ) AS albums
   FROM media m
   JOIN location l ON m.location_id = l.id
   LEFT JOIN media_person_relation mpr ON m.id = mpr.media_id
-  LEFT JOIN people p ON mpr.people_id = p.id
+  LEFT JOIN person p ON mpr.person_id = p.id
   LEFT JOIN media_album_relation mar ON m.id = mar.media_id
   LEFT JOIN album a ON mar.album_id = a.id
   `
@@ -129,7 +131,7 @@ export async function getAllMedias(
 }
 
 // Find an media from media table
-export async function findMediaById(id: number) {
+export async function findMediaById(id: number): Promise<QueryResult<DBMedia>> {
   const query = `SELECT * FROM media WHERE id = $1`
 
   const params = [id]
@@ -138,64 +140,71 @@ export async function findMediaById(id: number) {
 }
 
 // Add media into the media table
-export async function uploadMedia(path: string, type: string, season: string, location_id: number) {
+export async function uploadMedia(path: string, type: string, season: string, location_id: number): Promise<void> {
   const query = `INSERT INTO media (path, type, season, location_id) VALUES ($1, $2, $3, $4) RETURNING id`
 
   const params = [path, type, season, location_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Add media and person into the media person relation
-export async function addMediaPersonRelation(media_id: number, person_id: number) {
+export async function addMediaPersonRelation(media_id: number, person_id: number): Promise<void> {
   const query = `INSERT INTO media_person_relation (media_id, person_id) VALUES ($1, $2)`
 
   const params = [media_id, person_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Add media and album into the media album relation
-export async function addMediaAlbumRelation(media_id: number, album_id: number) {
+export async function addMediaAlbumRelation(media_id: number, album_id: number): Promise<void> {
   const query = `INSERT INTO media_album_relation (media_id, album_id) VALUES ($1, $2)`
 
   const params = [media_id, album_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Update media from media table
-export async function updateMedia(media_id: number, season: string, location_id: number) {
+export async function updateMedia(media_id: number, season: string, location_id: number): Promise<void> {
   const query = `UPDATE media SET season = $2, location_id = $3 WHERE id = $1`
 
   const params = [media_id, season, location_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Delete media from media table
-export async function deleteMedia(media_id: number) {
+export async function deleteMedia(media_id: number): Promise<void> {
   const query = `DELETE FROM media WHERE id = $1`
 
   const params = [media_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Delete media and person from the media person relation
-export async function deleteMediaPersonRelation(media_id: number) {
+export async function deleteMediaPersonRelation(media_id: number): Promise<void> {
   const query = `DELETE FROM media_person_relation WHERE media_id = $1`
 
   const params = [media_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }
 
 // Delete media and album from the media album relation
-export async function deleteMediaAlbumRelation(media_id: number) {
+export async function deleteMediaAlbumRelation(media_id: number): Promise<void> {
   const query = `DELETE FROM media_album_relation WHERE media_id = $1`
 
   const params = [media_id]
 
-  return await dbQuery(query, params)
+  await dbQuery(query, params)
+  return
 }

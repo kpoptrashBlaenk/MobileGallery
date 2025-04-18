@@ -18,6 +18,15 @@ export async function findAlbumByName(name: string) {
   return await dbQuery(query, params)
 }
 
+// Find an album from album table using id
+export async function findAlbumById(id: number) {
+  const query = `SELECT * FROM album WHERE id = $1`
+
+  const params = [id]
+
+  return await dbQuery(query, params)
+}
+
 // Get an album to album table
 export async function addAlbum(name: string) {
   const query = `INSERT INTO album (name) VALUES($1)`

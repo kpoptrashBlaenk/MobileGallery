@@ -22,7 +22,7 @@
         />
       </div>
 
-      <!-- Error Text -->
+      <!-- Feedback -->
       <div
         v-if="feedback.message"
         class="h-4.5 mt-2 flex justify-center text-sm text-center"

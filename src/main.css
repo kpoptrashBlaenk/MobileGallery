@@ -1,3 +1,4 @@
 @import 'tailwindcss';
-@import 'tailwindcss/preflight';
+/* Causes everything to be forever m-0, p-0 etc */
+/* @import 'tailwindcss/preflight';*/ 
 @import 'tailwindcss/utilities';

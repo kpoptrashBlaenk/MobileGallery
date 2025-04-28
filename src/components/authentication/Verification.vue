@@ -28,7 +28,7 @@
         class="h-4.5 mt-2 flex justify-center text-sm text-center"
         :class="{ 'text-red-600': !feedback.isValid }"
       >
-        <IonIcon v-if="!feedback.isValid" class="h-full me-1" name="alert-circle-outline"></IonIcon>
+        <IonIcon v-if="!feedback.isValid" class="h-full me-1" :icon="alertCircleOutline"></IonIcon>
         <div>{{ feedback.message }}</div>
       </div>
     </IonContent>
@@ -40,12 +40,13 @@
 import { Feedback, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { IonContent, IonIcon, IonPage } from '@ionic/vue'
+import { alertCircleOutline } from 'ionicons/icons'
 import { onMounted, ref } from 'vue'
 
 /* Ref */
 const otps = ref<string[]>(['', '', '', '', '', ''])
 const inputs = ref<NodeListOf<HTMLInputElement>>()
-const feedback = ref<Feedback>({ isValid: false, message: null })
+const feedback = ref<Feedback>({ isValid: false, message: 'null' })
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {

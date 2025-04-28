@@ -34,13 +34,6 @@ import '@ionic/vue/css/palettes/dark.system.css'
 /* Theme variables */
 import './theme/variables.css'
 
-/* Ionic Icons */
-import { addIcons } from 'ionicons'
-import { alertCircleOutline } from 'ionicons/icons'
-addIcons({
-  'alert-circle-outline': alertCircleOutline,
-})
-
 /* Custom CSS */
 import './main.css'
 

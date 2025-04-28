@@ -3,6 +3,7 @@
     <IonHeader>
       <IonToolbar>
         <IonTitle class="ml-2">QR Code</IonTitle>
+        <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
       </IonToolbar>
     </IonHeader>
     <IonContent>
@@ -31,13 +32,14 @@
 /* Import */
 import { Feedback, GetConfigs } from '@/types'
 import { apiRequestGet } from '@/utils/apiRequest'
-import { IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { alertCircleOutline } from 'ionicons/icons'
 import { onMounted, ref } from 'vue'
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const qrCode = ref<string | null>(null)
+const loading = ref<boolean>(false)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -56,6 +58,8 @@ async function createQRCode(): Promise<void> {
     onFail: (error: Error) => (feedback.value.message = error.message),
   }
 
-  apiRequestGet(getConfigs)
+  loading.value = true
+  await apiRequestGet(getConfigs)
+  loading.value = false
 }
 </script>

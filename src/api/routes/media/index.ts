@@ -49,7 +49,7 @@ router.post('/get', async (req: Request, res: Response) => {
           ...media,
           media: `${req.protocol}://${req.get('host')}/uploads/${path.basename(media.path)}`,
         }
-      })
+      }),
     )
 
     res.status(200).json(await base64Medias)

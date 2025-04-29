@@ -11,7 +11,7 @@ export async function getAllMedias(
   albums?: number[],
   location?: number,
   people?: number[],
-  season?: string
+  season?: string,
 ): Promise<QueryResult<DBMediaWithTags>> {
   let query = `SELECT 
   m.id AS media_id,
@@ -56,7 +56,7 @@ export async function getAllMedias(
             AND mar.album_id = $${params.length - index}
           )`
           })
-          .join(' AND ')
+          .join(' AND '),
       )
       // If OR
     } else {
@@ -85,7 +85,7 @@ export async function getAllMedias(
             AND mpr.people_id = $${params.length - index}
           )`
           })
-          .join(' AND ')
+          .join(' AND '),
       )
       // If OR
     } else {

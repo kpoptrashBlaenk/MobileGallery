@@ -2,15 +2,15 @@
   <IonPage>
     <IonContent>
       <!-- Title -->
-      <div class="mt-10 text-4xl text-center font-bold">You are not authenticated!</div>
+      <div class="mt-10 text-center text-4xl font-bold">You are not authenticated!</div>
       <!-- Subtitle -->
-      <div class="mt-15 text-2xl text-center">Please enter your key.</div>
+      <div class="mt-15 text-center text-2xl">Please enter your key.</div>
 
       <!-- Input Grid -->
-      <div class="grid grid-cols-6 gap-1 mx-4 mt-8">
+      <div class="mx-4 mt-8 grid grid-cols-6 gap-1">
         <input
           v-for="(otp, index) in otps"
-          class="text-center h-15 text-3xl font-semibold border-1 rounded-xl border-gray-300 focus:border-blue-500 outline-none transition-all duration-150"
+          class="h-15 rounded-xl border-1 border-gray-300 text-center text-3xl font-semibold transition-all duration-150 outline-none focus:border-blue-500"
           placeholder="X"
           :key="index"
           v-model="otps[index]"
@@ -25,10 +25,10 @@
       <!-- Feedback -->
       <div
         v-if="feedback.message"
-        class="h-4.5 mt-2 flex justify-center text-sm text-center"
+        class="mt-2 flex h-4.5 justify-center text-center text-sm"
         :class="{ 'text-red-600': !feedback.isValid }"
       >
-        <IonIcon v-if="!feedback.isValid" class="h-full me-1" :icon="alertCircleOutline"></IonIcon>
+        <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
         <div>{{ feedback.message }}</div>
       </div>
     </IonContent>

@@ -46,7 +46,7 @@ import { onMounted, ref } from 'vue'
 /* Ref */
 const otps = ref<string[]>(['', '', '', '', '', ''])
 const inputs = ref<NodeListOf<HTMLInputElement>>()
-const feedback = ref<Feedback>({ isValid: false, message: 'null' })
+const feedback = ref<Feedback>({ isValid: false, message: null })
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {

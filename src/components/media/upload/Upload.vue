@@ -38,8 +38,18 @@
         </div>
       </div>
 
+      <!-- Tag Buttons -->
+      <div class="mt-3 flex items-center justify-center">
+        <div class="grid grid-cols-2 gap-1">
+          <IonButton id="open-people-modal">People</IonButton>
+          <IonButton id="open-location-modal">Location</IonButton>
+          <IonButton id="open-season-modal">Season</IonButton>
+          <IonButton id="open-albums-modal">Albums</IonButton>
+        </div>
+      </div>
+
       <!-- Upload Button -->
-      <div class="mt-10 flex justify-center">
+      <div class="mt-7.5 flex justify-center">
         <IonButton :disabled="loading" @click="emptyMedia()">Upload</IonButton>
       </div>
 
@@ -52,6 +62,137 @@
         <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
         <div>{{ feedback.message }}</div>
       </div>
+
+      <!-- People Modal -->
+      <IonModal
+        ref="peopleModal"
+        trigger="open-people-modal"
+        :initial-breakpoint="0.25"
+        :breakpoints="[0, 0.25, 0.5, 0.75]"
+        :expand-to-scroll="false"
+      >
+        <IonContent class="ion-padding">
+          <!-- Searchbar -->
+          <IonSearchbar
+            v-model="peopleSearch"
+            placeholder="Person"
+            @click="peopleModal?.$el.setCurrentBreakpoint(0.75)"
+          ></IonSearchbar>
+          <!-- Add -->
+          <div v-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+            <div>Person not found.</div>
+            <IonButton>Add {{ peopleSearch }}</IonButton>
+          </div>
+          <!-- List -->
+          <IonList v-else>
+            <IonItem v-for="(person, index) in peopleFiltered" :key="index">
+              <IonCheckbox
+                @ionChange="handlePeopleSelected($event, person)"
+                :checked="peopleSelected.includes(person)"
+                label-placement="end"
+                justify="start"
+                >{{ person }}</IonCheckbox
+              >
+            </IonItem>
+          </IonList>
+        </IonContent>
+      </IonModal>
+
+      <!-- Location Modal -->
+      <IonModal
+        ref="locationsModal"
+        trigger="open-location-modal"
+        :initial-breakpoint="0.25"
+        :breakpoints="[0, 0.25, 0.5, 0.75]"
+        :expand-to-scroll="false"
+      >
+        <IonContent class="ion-padding">
+          <!-- Searchbar -->
+          <IonSearchbar
+            v-model="locationsSearch"
+            placeholder="Location"
+            @click="locationsModal?.$el.setCurrentBreakpoint(0.75)"
+          ></IonSearchbar>
+          <!-- Add -->
+          <div v-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+            <div>Location not found.</div>
+            <IonButton>Add {{ locationsSearch }}</IonButton>
+          </div>
+          <!-- List -->
+          <IonList v-else>
+            <IonItem
+              v-for="(location, index) in locationsFiltered"
+              :key="index"
+              :button="true"
+              @click="handleLocationSelected(location)"
+              >{{ location }}
+            </IonItem>
+          </IonList>
+        </IonContent>
+      </IonModal>
+
+      <!-- Season Modal -->
+      <IonModal
+        ref="seasonsModal"
+        trigger="open-season-modal"
+        :initial-breakpoint="0.25"
+        :breakpoints="[0, 0.25, 0.5, 0.75]"
+        :expand-to-scroll="false"
+      >
+        <IonContent class="ion-padding">
+          <!-- Searchbar -->
+          <IonSearchbar
+            v-model="seasonsSearch"
+            placeholder="Season"
+            @click="seasonsModal?.$el.setCurrentBreakpoint(0.75)"
+          ></IonSearchbar>
+          <!-- Add -->
+          <div v-if="seasonsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+            <div>Season not found.</div>
+          </div>
+          <!-- List -->
+          <IonList v-else>
+            <IonItem v-for="(season, index) in seasonsFiltered" :key="index" :button="true" @click="handleSeasonSelected(season)"
+              >{{ season }}
+            </IonItem>
+          </IonList>
+        </IonContent>
+      </IonModal>
+
+      <!-- Albums Modal -->
+      <IonModal
+        ref="albumsModal"
+        trigger="open-albums-modal"
+        :initial-breakpoint="0.25"
+        :breakpoints="[0, 0.25, 0.5, 0.75]"
+        :expand-to-scroll="false"
+      >
+        <IonContent class="ion-padding">
+          <!-- Searchbar -->
+          <IonSearchbar
+            v-model="albumsSearch"
+            placeholder="Album"
+            @click="albumsModal?.$el.setCurrentBreakpoint(0.75)"
+          ></IonSearchbar>
+          <!-- Add -->
+          <div v-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+            <div>Album not found.</div>
+            <IonButton>Add {{ albumsSearch }}</IonButton>
+          </div>
+          <!-- List -->
+          <IonList v-else>
+            <IonItem v-for="(album, index) in albumsFiltered" :key="index">
+              <IonCheckbox
+                @ionChange="handleAlbumsSelected($event, album)"
+                :checked="albumsSelected.includes(album)"
+                label-placement="end"
+                justify="start"
+                >{{ album }}</IonCheckbox
+              >
+            </IonItem>
+          </IonList>
+        </IonContent>
+      </IonModal>
     </IonContent>
   </IonPage>
 </template>
@@ -60,9 +201,23 @@
 /* Import */
 import { Feedback } from '@/types'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import {
+  IonButton,
+  IonCheckbox,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonModal,
+  IonPage,
+  IonProgressBar,
+  IonSearchbar,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/vue'
 import { alertCircleOutline, closeOutline } from 'ionicons/icons'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
@@ -70,6 +225,36 @@ const loading = ref<boolean>(false)
 const mediaFiles = ref<FileList | null>()
 const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
+const allPeople = ref(['Mirsad', 'Anela', 'Aldin', 'Muris', 'Kenan', 'Sara'])
+const peopleModal = ref<InstanceType<typeof IonModal>>()
+const peopleSearch = ref<string>('')
+const peopleSelected = ref<string[]>([])
+const allLocations = ref(['Frankfurt', 'Nancy', 'Tahiti', 'Bosnien'])
+const locationsModal = ref<InstanceType<typeof IonModal>>()
+const locationsSearch = ref<string>('')
+const locationSelected = ref<string>('')
+const allSeasons = ref(['Spring', 'Summer', 'Fall', 'Winter'])
+const seasonsModal = ref<InstanceType<typeof IonModal>>()
+const seasonsSearch = ref<string>('')
+const seasonSelected = ref<string>('')
+const allAlbums = ref(['Sport', 'Home', 'Outside'])
+const albumsModal = ref<InstanceType<typeof IonModal>>()
+const albumsSearch = ref<string>('')
+const albumsSelected = ref<string[]>([])
+
+/* Computed */
+const peopleFiltered = computed(() =>
+  allPeople.value.filter((name) => name.toLowerCase().includes(peopleSearch.value.toLowerCase())),
+)
+const locationsFiltered = computed(() =>
+  allLocations.value.filter((name) => name.toLowerCase().includes(locationsSearch.value.toLowerCase())),
+)
+const seasonsFiltered = computed(() =>
+  allSeasons.value.filter((name) => name.toLowerCase().includes(seasonsSearch.value.toLowerCase())),
+)
+const albumsFiltered = computed(() =>
+  allAlbums.value.filter((name) => name.toLowerCase().includes(albumsSearch.value.toLowerCase())),
+)
 
 /* DOM Manipulation */
 function previewMedia(): void {
@@ -142,6 +327,25 @@ function emptyMedia(): void {
   mediaInput.value!.value = ''
   mediaFiles.value = null
   mediaUrls.value = []
+}
+
+/* Utility Functions */
+function handlePeopleSelected(event: CustomEvent, value: string): void {
+  // If checked: push value | if unchecked: splice value
+  event.detail.checked ? peopleSelected.value.push(value) : peopleSelected.value.splice(peopleSelected.value.indexOf(value), 1)
+}
+
+function handleLocationSelected(value: string): void {
+  locationSelected.value = value
+}
+
+function handleSeasonSelected(value: string): void {
+  seasonSelected.value = value
+}
+
+function handleAlbumsSelected(event: CustomEvent, value: string): void {
+  // If checked: push value | if unchecked: splice value
+  event.detail.checked ? albumsSelected.value.push(value) : albumsSelected.value.splice(albumsSelected.value.indexOf(value), 1)
 }
 </script>
 

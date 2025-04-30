@@ -9,8 +9,8 @@
     <IonContent>
       <div class="mt-5 flex items-center justify-center p-5">
         <!-- Image -->
-        <img v-if="qrCode" :src="qrCode" class="qr-image" alt="QR Code" />
-        <img v-else src="../../../public/placeholderImage.jpg" class="qr-image" alt="QR Code" />
+        <img v-if="qrCode" :src="qrCode" />
+        <img v-else src="../../../public/placeholderImage.jpg" />
       </div>
 
       <div v-if="qrCode" class="text-center text-2xl">Scan to share!</div>

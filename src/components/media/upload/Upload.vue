@@ -17,17 +17,40 @@
       <div class="mt-5">
         <!-- Medias -->
         <div v-if="mediaFiles && mediaFiles.length !== 0">
-          <swiper-container speed="250" slidesPerView="1" initialSlide="0" pagination="true" class="s my-auto h-56">
+          <!-- Swiper -->
+          <swiper-container speed="250" slidesPerView="1" pagination="true" cssMode="false" class="s my-auto h-56">
             <swiper-slide v-for="(mediaUrl, index) in mediaUrls" :key="index" class="flex h-52 items-center justify-center">
-              <img class="h-full" :src="mediaUrl" />
+              <div class="relative h-full object-contain">
+                <!-- Media -->
+                <img class="h-full" :src="mediaUrl" />
+                <!-- Remove Button -->
+                <IonButton size="small" shape="round" color="danger" class="absolute end-0 top-0 m-1" @click="removeMedia(index)">
+                  <IonIcon slot="icon-only" :icon="closeOutline">X</IonIcon>
+                </IonButton>
+              </div>
             </swiper-slide>
           </swiper-container>
         </div>
 
         <!-- Placeholder -->
-        <div class="px-10" v-else>
-          <img src="../../../../../public/placeholderImage.jpg" alt="Preview" class="preview-media" />
+        <div class="flex justify-center" v-else>
+          <img src="../../../../../public/placeholderImage.jpg" class="h-56" />
         </div>
+      </div>
+
+      <!-- Upload Button -->
+      <div class="mt-10 flex justify-center">
+        <IonButton :disabled="loading" @click="emptyMedia()">Upload</IonButton>
+      </div>
+
+      <!-- Feedback -->
+      <div
+        v-if="feedback.message"
+        class="mt-2 flex h-4.5 justify-center text-center text-sm"
+        :class="{ 'text-red-600': !feedback.isValid }"
+      >
+        <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
+        <div>{{ feedback.message }}</div>
       </div>
     </IonContent>
   </IonPage>
@@ -37,7 +60,8 @@
 /* Import */
 import { Feedback } from '@/types'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import { alertCircleOutline, closeOutline } from 'ionicons/icons'
 import { ref } from 'vue'
 
 /* Ref */
@@ -75,19 +99,49 @@ function previewMedia(): void {
 
   // Return media files
   mediaFiles.value = files
+
+  // Read Media
   readMedia()
 }
 
 function readMedia(): void {
-  if (mediaFiles.value)
-    for (const file of Array.from(mediaFiles.value)) {
+  if (mediaFiles.value) {
+    const urls: string[] = []
+
+    Array.from(mediaFiles.value).forEach((file, index) => {
       // Create preview with reader
       const reader = new FileReader()
       reader.onload = (event: ProgressEvent<FileReader>) => {
-        mediaUrls.value.push(event.target?.result as string)
+        // urls[index] because reader is being created asynchronously and messes up the order
+        urls[index] = event.target?.result as string
+        if (urls.length === mediaFiles.value?.length) mediaUrls.value = urls
       }
       reader.readAsDataURL(file as File)
-    }
+    })
+  }
+}
+
+function removeMedia(index: number): void {
+  // Create data transfer
+  const dataTransfer = new DataTransfer()
+
+  // Loop to select all files except the deleted one
+  if (mediaInput.value?.files)
+    Array.from(mediaInput.value.files).forEach((file) => {
+      if (file.name !== mediaFiles.value?.[index].name) dataTransfer.items.add(file)
+    })
+
+  // Set new input
+  mediaInput.value!.files = dataTransfer.files
+
+  // Reset preview
+  previewMedia()
+}
+
+function emptyMedia(): void {
+  mediaInput.value!.value = ''
+  mediaFiles.value = null
+  mediaUrls.value = []
 }
 </script>
 

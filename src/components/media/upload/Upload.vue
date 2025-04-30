@@ -25,7 +25,7 @@
                 <img class="h-full" :src="mediaUrl" />
                 <!-- Remove Button -->
                 <IonButton size="small" shape="round" color="danger" class="absolute end-0 top-0 m-1" @click="removeMedia(index)">
-                  <IonIcon slot="icon-only" :icon="closeOutline">X</IonIcon>
+                  <IonIcon slot="icon-only" :icon="closeOutline"></IonIcon>
                 </IonButton>
               </div>
             </swiper-slide>
@@ -90,10 +90,10 @@
           <!-- Add -->
           <div v-else-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Person not found.</div>
-            <IonButton>Add {{ peopleSearch }}</IonButton>
+            <IonButton @click="addPerson(peopleSearch)">Add {{ peopleSearch }}</IonButton>
           </div>
           <!-- List -->
-          <IonList v-else>
+          <IonList>
             <IonItem v-for="(person, index) in peopleFiltered" :key="index">
               <IonCheckbox
                 @ionChange="handlePeopleSelected($event, person)"
@@ -134,7 +134,7 @@
           <!-- Add -->
           <div v-else-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Location not found.</div>
-            <IonButton>Add {{ locationsSearch }}</IonButton>
+            <IonButton @click="addLocation(peopleSearch)">Add {{ locationsSearch }}</IonButton>
           </div>
           <!-- List -->
           <IonList v-else>
@@ -204,7 +204,7 @@
           <!-- Add -->
           <div v-else-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Album not found.</div>
-            <IonButton>Add {{ albumsSearch }}</IonButton>
+            <IonButton @click="addAlbum(peopleSearch)">Add {{ albumsSearch }}</IonButton>
           </div>
           <!-- List -->
           <IonList v-else>
@@ -226,8 +226,8 @@
 
 <script setup lang="ts">
 /* Import */
-import { Feedback, GetConfigs } from '@/types'
-import { apiRequestGet } from '@/utils/apiRequest'
+import { Feedback, GetConfigs, PostConfigs } from '@/types'
+import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
 import {
   IonButton,
@@ -436,6 +436,57 @@ async function fetchAlbums(): Promise<void> {
   }
 
   await apiRequestGet(configs)
+}
+
+async function addPerson(person: string): Promise<void> {
+  const configs: PostConfigs = {
+    url: 'tag/person/add',
+
+    body: () => JSON.stringify({ name: person }),
+
+    onSuccess: () => fetchPeople(),
+
+    onFail: (error: Error) => {
+      setFeedback(peopleFeedback, error.message)
+      setTimeout(() => setFeedback(peopleFeedback, null), 2000)
+    },
+  }
+
+  await apiRequestPost(configs)
+}
+
+async function addLocation(lcoation: string): Promise<void> {
+  const configs: PostConfigs = {
+    url: 'tag/location/add',
+
+    body: () => JSON.stringify({ name: lcoation }),
+
+    onSuccess: () => fetchLocations(),
+
+    onFail: (error: Error) => {
+      setFeedback(locationsFeedback, error.message)
+      setTimeout(() => setFeedback(locationsFeedback, null), 2000)
+    },
+  }
+
+  await apiRequestPost(configs)
+}
+
+async function addAlbum(album: string): Promise<void> {
+  const configs: PostConfigs = {
+    url: 'tag/album/add',
+
+    body: () => JSON.stringify({ name: album }),
+
+    onSuccess: () => fetchAlbums(),
+
+    onFail: (error: Error) => {
+      setFeedback(albumsFeedback, error.message)
+      setTimeout(() => setFeedback(albumsFeedback, null), 2000)
+    },
+  }
+
+  await apiRequestPost(configs)
 }
 
 /* Utility Functions */

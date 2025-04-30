@@ -16,14 +16,7 @@
       <div v-if="qrCode" class="text-center text-2xl">Scan to share!</div>
 
       <!-- Feedback -->
-      <div
-        v-if="feedback.message"
-        class="flex h-4.5 justify-center text-center text-sm"
-        :class="{ 'text-red-600': !feedback.isValid }"
-      >
-        <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-        <div>{{ feedback.message }}</div>
-      </div>
+      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
     </IonContent>
   </IonPage>
 </template>
@@ -33,9 +26,9 @@
 import { Feedback, GetConfigs } from '@/types'
 import { apiRequestGet } from '@/utils/apiRequest'
 import { setFeedback } from '@/utils/functions'
-import { IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
-import { alertCircleOutline } from 'ionicons/icons'
+import { IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
+import FeedbackComponent from '../partials/FeedbackComponent.vue'
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })

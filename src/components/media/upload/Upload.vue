@@ -54,14 +54,7 @@
       </div>
 
       <!-- Feedback -->
-      <div
-        v-if="feedback.message"
-        class="mt-2 flex h-4.5 justify-center text-center text-sm"
-        :class="{ 'text-red-600': !feedback.isValid }"
-      >
-        <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-        <div>{{ feedback.message }}</div>
-      </div>
+      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
 
       <!-- People Modal -->
       <IonModal
@@ -79,14 +72,7 @@
             @click="peopleModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
           <!-- Feedback -->
-          <div
-            v-if="peopleFeedback.message"
-            class="mt-2 flex h-4.5 justify-center text-center text-sm"
-            :class="{ 'text-red-600': !peopleFeedback.isValid }"
-          >
-            <IonIcon v-if="!peopleFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-            <div>{{ peopleFeedback.message }}</div>
-          </div>
+          <FeedbackComponent v-if="peopleFeedback.message" :is-valid="peopleFeedback.isValid" :message="peopleFeedback.message" />
           <!-- Add -->
           <div v-else-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Person not found.</div>
@@ -123,14 +109,11 @@
             @click="locationsModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
           <!-- Feedback -->
-          <div
+          <FeedbackComponent
             v-if="locationsFeedback.message"
-            class="mt-2 flex h-4.5 justify-center text-center text-sm"
-            :class="{ 'text-red-600': !locationsFeedback.isValid }"
-          >
-            <IonIcon v-if="!locationsFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-            <div>{{ locationsFeedback.message }}</div>
-          </div>
+            :is-valid="locationsFeedback.isValid"
+            :message="locationsFeedback.message"
+          />
           <!-- Add -->
           <div v-else-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Location not found.</div>
@@ -193,14 +176,7 @@
             @click="albumsModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
           <!-- Feedback -->
-          <div
-            v-if="albumsFeedback.message"
-            class="mt-2 flex h-4.5 justify-center text-center text-sm"
-            :class="{ 'text-red-600': !albumsFeedback.isValid }"
-          >
-            <IonIcon v-if="!albumsFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-            <div>{{ albumsFeedback.message }}</div>
-          </div>
+          <FeedbackComponent v-if="albumsFeedback.message" :is-valid="albumsFeedback.isValid" :message="albumsFeedback.message" />
           <!-- Add -->
           <div v-else-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Album not found.</div>
@@ -226,6 +202,7 @@
 
 <script setup lang="ts">
 /* Import */
+import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import { Feedback, GetConfigs, PostConfigs } from '@/types'
 import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
@@ -244,7 +221,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/vue'
-import { alertCircleOutline, closeOutline } from 'ionicons/icons'
+import { closeOutline } from 'ionicons/icons'
 import { computed, onMounted, ref } from 'vue'
 
 /* Ref */

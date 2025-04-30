@@ -23,14 +23,7 @@
       </div>
 
       <!-- Feedback -->
-      <div
-        v-if="feedback.message"
-        class="mt-2 flex h-4.5 justify-center text-center text-sm"
-        :class="{ 'text-red-600': !feedback.isValid }"
-      >
-        <IonIcon v-if="!feedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
-        <div>{{ feedback.message }}</div>
-      </div>
+      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
     </IonContent>
   </IonPage>
 </template>
@@ -40,9 +33,9 @@
 import { Feedback, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { setFeedback } from '@/utils/functions'
-import { IonContent, IonIcon, IonPage } from '@ionic/vue'
-import { alertCircleOutline } from 'ionicons/icons'
+import { IonContent, IonPage } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
+import FeedbackComponent from '../partials/FeedbackComponent.vue'
 
 /* Ref */
 const otps = ref<string[]>(['', '', '', '', '', ''])

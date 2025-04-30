@@ -37,6 +37,10 @@ import './theme/variables.css'
 /* Custom CSS */
 import './main.css'
 
+/* Swiper */
+import { register } from 'swiper/element/bundle'
+register()
+
 const app = createApp(App).use(IonicVue).use(router)
 
 router.isReady().then(() => {

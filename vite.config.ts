@@ -8,8 +8,14 @@ import { defineConfig } from 'vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
-    legacy()
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('swiper'), // To tell vue that swiper is a custom tag
+        },
+      },
+    }),
+    legacy(),
   ],
   resolve: {
     alias: {
@@ -18,6 +24,6 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom'
-  }
+    environment: 'jsdom',
+  },
 })

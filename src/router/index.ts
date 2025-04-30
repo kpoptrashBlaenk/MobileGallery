@@ -1,4 +1,5 @@
 import QR from '@/components/authentication/QR.vue'
+import Upload from '@/components/media/upload/Upload.vue'
 import ExtraPage from '@/views/ExtraPage.vue'
 import MainPage from '@/views/MainPage.vue'
 import VerificationPage from '@/views/VerificationPage.vue'
@@ -11,7 +12,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/main',
     name: 'main',
     component: MainPage,
-    children: [],
+    children: [{ path: '/upload', name: 'upload', component: Upload }],
   },
   {
     path: '/extra',

@@ -32,6 +32,7 @@
 /* Import */
 import { Feedback, GetConfigs } from '@/types'
 import { apiRequestGet } from '@/utils/apiRequest'
+import { setFeedback } from '@/utils/functions'
 import { IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { alertCircleOutline } from 'ionicons/icons'
 import { onMounted, ref } from 'vue'
@@ -55,7 +56,7 @@ async function createQRCode(): Promise<void> {
       qrCode.value = result
     },
 
-    onFail: (error: Error) => (feedback.value.message = error.message),
+    onFail: (error: Error) => setFeedback(feedback, error.message),
   }
 
   loading.value = true

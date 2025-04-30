@@ -39,6 +39,7 @@
 /* Import */
 import { Feedback, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
+import { setFeedback } from '@/utils/functions'
 import { IonContent, IonIcon, IonPage } from '@ionic/vue'
 import { alertCircleOutline } from 'ionicons/icons'
 import { onMounted, ref } from 'vue'
@@ -86,12 +87,12 @@ async function verify(): Promise<void> {
     url: 'auth/verify',
 
     onSuccess: () => {
-      feedback.value.message = null
+      setFeedback(feedback, null)
       location.reload()
     },
 
     onFail: (error: Error) => {
-      feedback.value.message = error.message
+      setFeedback(feedback, error.message)
     },
 
     body: () => JSON.stringify({ token: otps.value.join('') }),

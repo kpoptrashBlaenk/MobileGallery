@@ -11,7 +11,7 @@ router.get('/person/get', async (req: Request, res: Response) => {
   try {
     const people = await getAllPeople()
 
-    res.status(200).json(people.rows)
+    res.status(200).json(people.rows.map((person) => person.name))
     return
   } catch (error) {
     console.error(error)
@@ -53,7 +53,7 @@ router.get('/album/get', async (req: Request, res: Response) => {
   try {
     const albums = await getAllAlbums()
 
-    res.status(200).json(albums.rows)
+    res.status(200).json(albums.rows.map((album) => album.name))
     return
   } catch (error) {
     console.error(error)
@@ -93,9 +93,9 @@ router.post('/album/add', async (req: Request, res: Response) => {
 // Get all location
 router.get('/location/get', async (req: Request, res: Response) => {
   try {
-    const location = await getAllLocations()
+    const locations = await getAllLocations()
 
-    res.status(200).json(location.rows)
+    res.status(200).json(locations.rows.map((location) => location.name))
     return
   } catch (error) {
     console.error(error)

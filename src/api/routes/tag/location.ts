@@ -4,7 +4,7 @@ import { QueryResult } from 'pg'
 
 // Get all from location table
 export async function getAllLocations(): Promise<QueryResult<DBTag>> {
-  const query = `SELECT id, name FROM location ORDER BY label`
+  const query = `SELECT * FROM location ORDER BY name`
 
   const params: any[] = []
 

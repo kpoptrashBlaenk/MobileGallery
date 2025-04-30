@@ -4,7 +4,7 @@ import { QueryResult } from 'pg'
 
 // Get all people from person table
 export async function getAllPeople(): Promise<QueryResult<DBTag>> {
-  const query = `SELECT id, name FROM people ORDER BY label`
+  const query = `SELECT * FROM person ORDER BY name`
 
   const params: any[] = []
 
@@ -13,7 +13,7 @@ export async function getAllPeople(): Promise<QueryResult<DBTag>> {
 
 // Find a person from person table using name
 export async function findPersonByName(name: string): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM people WHERE name = $1`
+  const query = `SELECT * FROM person WHERE name = $1`
 
   const params = [name]
 
@@ -22,7 +22,7 @@ export async function findPersonByName(name: string): Promise<QueryResult<DBTag>
 
 // Find a person from person table using id
 export async function findPersonById(id: number): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM people WHERE id = $1`
+  const query = `SELECT * FROM person WHERE id = $1`
 
   const params = [id]
 
@@ -31,7 +31,7 @@ export async function findPersonById(id: number): Promise<QueryResult<DBTag>> {
 
 // Get a person to person table
 export async function addPerson(name: string): Promise<void> {
-  const query = `INSERT INTO people (name) VALUES($1)`
+  const query = `INSERT INTO person (name) VALUES($1)`
 
   const params = [name]
 

@@ -78,8 +78,17 @@
             placeholder="Person"
             @click="peopleModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
+          <!-- Feedback -->
+          <div
+            v-if="peopleFeedback.message"
+            class="mt-2 flex h-4.5 justify-center text-center text-sm"
+            :class="{ 'text-red-600': !peopleFeedback.isValid }"
+          >
+            <IonIcon v-if="!peopleFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
+            <div>{{ peopleFeedback.message }}</div>
+          </div>
           <!-- Add -->
-          <div v-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+          <div v-else-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Person not found.</div>
             <IonButton>Add {{ peopleSearch }}</IonButton>
           </div>
@@ -113,8 +122,17 @@
             placeholder="Location"
             @click="locationsModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
+          <!-- Feedback -->
+          <div
+            v-if="locationsFeedback.message"
+            class="mt-2 flex h-4.5 justify-center text-center text-sm"
+            :class="{ 'text-red-600': !locationsFeedback.isValid }"
+          >
+            <IonIcon v-if="!locationsFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
+            <div>{{ locationsFeedback.message }}</div>
+          </div>
           <!-- Add -->
-          <div v-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+          <div v-else-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Location not found.</div>
             <IonButton>Add {{ locationsSearch }}</IonButton>
           </div>
@@ -174,8 +192,17 @@
             placeholder="Album"
             @click="albumsModal?.$el.setCurrentBreakpoint(0.75)"
           ></IonSearchbar>
+          <!-- Feedback -->
+          <div
+            v-if="albumsFeedback.message"
+            class="mt-2 flex h-4.5 justify-center text-center text-sm"
+            :class="{ 'text-red-600': !albumsFeedback.isValid }"
+          >
+            <IonIcon v-if="!albumsFeedback.isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
+            <div>{{ albumsFeedback.message }}</div>
+          </div>
           <!-- Add -->
-          <div v-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
+          <div v-else-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
             <div>Album not found.</div>
             <IonButton>Add {{ albumsSearch }}</IonButton>
           </div>
@@ -199,7 +226,8 @@
 
 <script setup lang="ts">
 /* Import */
-import { Feedback } from '@/types'
+import { Feedback, GetConfigs } from '@/types'
+import { apiRequestGet } from '@/utils/apiRequest'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
 import {
   IonButton,
@@ -217,7 +245,7 @@ import {
   IonToolbar,
 } from '@ionic/vue'
 import { alertCircleOutline, closeOutline } from 'ionicons/icons'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
@@ -225,22 +253,25 @@ const loading = ref<boolean>(false)
 const mediaFiles = ref<FileList | null>()
 const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
-const allPeople = ref(['Mirsad', 'Anela', 'Aldin', 'Muris', 'Kenan', 'Sara'])
+const allPeople = ref<string[]>([])
 const peopleModal = ref<InstanceType<typeof IonModal>>()
 const peopleSearch = ref<string>('')
 const peopleSelected = ref<string[]>([])
-const allLocations = ref(['Frankfurt', 'Nancy', 'Tahiti', 'Bosnien'])
+const peopleFeedback = ref<Feedback>({ isValid: false, message: null })
+const allLocations = ref<string[]>([])
 const locationsModal = ref<InstanceType<typeof IonModal>>()
 const locationsSearch = ref<string>('')
 const locationSelected = ref<string>('')
-const allSeasons = ref(['Spring', 'Summer', 'Fall', 'Winter'])
+const locationsFeedback = ref<Feedback>({ isValid: false, message: null })
+const allSeasons = ref<string[]>([])
 const seasonsModal = ref<InstanceType<typeof IonModal>>()
 const seasonsSearch = ref<string>('')
 const seasonSelected = ref<string>('')
-const allAlbums = ref(['Sport', 'Home', 'Outside'])
+const allAlbums = ref<string[]>([])
 const albumsModal = ref<InstanceType<typeof IonModal>>()
 const albumsSearch = ref<string>('')
 const albumsSelected = ref<string[]>([])
+const albumsFeedback = ref<Feedback>({ isValid: false, message: null })
 
 /* Computed */
 const peopleFiltered = computed(() =>
@@ -255,6 +286,14 @@ const seasonsFiltered = computed(() =>
 const albumsFiltered = computed(() =>
   allAlbums.value.filter((name) => name.toLowerCase().includes(albumsSearch.value.toLowerCase())),
 )
+
+/* Mounted Lifecycle Hook */
+onMounted(() => {
+  fetchPeople()
+  fetchLocations()
+  fetchSeasons()
+  fetchAlbums()
+})
 
 /* DOM Manipulation */
 function previewMedia(): void {
@@ -327,6 +366,76 @@ function emptyMedia(): void {
   mediaInput.value!.value = ''
   mediaFiles.value = null
   mediaUrls.value = []
+}
+
+/* API Requests */
+async function fetchPeople(): Promise<void> {
+  const configs: GetConfigs = {
+    url: 'tag/person/get',
+
+    onSuccess: (result: string[]) => {
+      allPeople.value = result
+      setFeedback(peopleFeedback, null)
+    },
+
+    onFail: (error: Error) => setFeedback(peopleFeedback, error.message),
+  }
+
+  await apiRequestGet(configs)
+}
+
+async function fetchLocations(): Promise<void> {
+  const configs: GetConfigs = {
+    url: 'tag/location/get',
+
+    onSuccess: (result: string[]) => {
+      allLocations.value = result
+      setFeedback(locationsFeedback, null)
+    },
+
+    onFail: (error: Error) => setFeedback(locationsFeedback, error.message),
+  }
+
+  await apiRequestGet(configs)
+}
+
+function fetchSeasons(): void {
+  const seasons = ['Spring', 'Summer', 'Fall', 'Winter']
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth()
+
+  const startYear = 2000
+  const seasonIndex = Math.floor(currentMonth / 3) // Current season [0-3] = [Spring-Winter]
+
+  const seasonArray: string[] = []
+
+  // Loop from current year to start year
+  for (let year = currentYear; year >= startYear; year--) {
+    const startSeason = year === currentYear ? seasonIndex : 3 // If current year then current season, if not then winter
+
+    for (let i = startSeason; i >= 0; i--) {
+      const seasonYear = i === 3 ? `${year}/${year + 1}` : `${year}`
+
+      seasonArray.push(`${seasons[i]} ${seasonYear}`)
+    }
+  }
+
+  allSeasons.value = seasonArray
+}
+
+async function fetchAlbums(): Promise<void> {
+  const configs: GetConfigs = {
+    url: 'tag/album/get',
+
+    onSuccess: (result: string[]) => {
+      allAlbums.value = result
+      setFeedback(albumsFeedback, null)
+    },
+
+    onFail: (error: Error) => setFeedback(albumsFeedback, error.message),
+  }
+
+  await apiRequestGet(configs)
 }
 
 /* Utility Functions */

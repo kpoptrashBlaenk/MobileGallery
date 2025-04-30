@@ -4,7 +4,7 @@ import { QueryResult } from 'pg'
 
 // Get all from album table
 export async function getAllAlbums(): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM album ORDER BY label`
+  const query = `SELECT * FROM album ORDER BY name`
 
   const params: any[] = []
 

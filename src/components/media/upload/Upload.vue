@@ -18,14 +18,6 @@
         </div>
       </div>
 
-      <!-- Upload Button -->
-      <div class="mt-7.5 flex justify-center">
-        <IonButton :disabled="loading" @click="upload()">Upload</IonButton>
-      </div>
-
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
-
       <!-- Modals -->
       <TagModalComponent
         v-for="(modalOption, index) in modalOptions"
@@ -37,6 +29,14 @@
         :static="modalOption.static"
         :static-fetch="modalOption.fetch"
       />
+
+      <!-- Upload Button -->
+      <div class="mt-7.5 flex justify-center">
+        <IonButton :disabled="loading" @click="upload()">Upload</IonButton>
+      </div>
+
+      <!-- Feedback -->
+      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
     </IonContent>
   </IonPage>
 </template>

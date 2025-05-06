@@ -80,35 +80,39 @@ import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, Ion
 import { closeOutline } from 'ionicons/icons'
 import { ref } from 'vue'
 
+/* Const */
+const selected = {
+  people: ref<string[]>([]),
+  location: ref<string>(''),
+  season: ref<string>(''),
+  albums: ref<string[]>([]),
+}
+
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const loading = ref<boolean>(false)
 const mediaFiles = ref<FileList | null>()
 const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
-const peopleSelected = ref<string[]>([])
-const locationSelected = ref<string>('')
-const seasonSelected = ref<string>('')
-const albumsSelected = ref<string[]>([])
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
     apiTagContext: 'person',
-    selected: peopleSelected,
+    selected: selected.people,
     multiple: true,
     static: false,
   },
   {
     tagContext: 'location',
     apiTagContext: 'location',
-    selected: locationSelected,
+    selected: selected.location,
     multiple: false,
     static: false,
   },
   {
     tagContext: 'season',
     apiTagContext: 'season',
-    selected: seasonSelected,
+    selected: selected.season,
     multiple: false,
     static: true,
     fetch: createSeasons,
@@ -116,7 +120,7 @@ const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'albums',
     apiTagContext: 'album',
-    selected: albumsSelected,
+    selected: selected.albums,
     multiple: true,
     static: false,
   },

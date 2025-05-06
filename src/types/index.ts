@@ -1,5 +1,6 @@
 export * from './apiBodyTypes'
 export * from './apiRequestTypes'
-export * from './viewTypes'
+export * from './componentTypes'
 export * from './queryResultTypes'
 export * from './tagTypes'
+export * from './viewTypes'

@@ -20,15 +20,6 @@ export async function findPersonByName(name: string): Promise<QueryResult<DBTag>
   return await dbQuery(query, params)
 }
 
-// Find a person from person table using id
-export async function findPersonById(id: number): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM person WHERE id = $1`
-
-  const params = [id]
-
-  return await dbQuery(query, params)
-}
-
 // Get a person to person table
 export async function addPerson(name: string): Promise<void> {
   const query = `INSERT INTO person (name) VALUES($1)`

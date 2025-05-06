@@ -20,15 +20,6 @@ export async function findLocationByName(name: string): Promise<QueryResult<DBTa
   return await dbQuery(query, params)
 }
 
-// Find a person from location table using id
-export async function findLocationById(id: number): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM location WHERE id = $1`
-
-  const params = [id]
-
-  return await dbQuery(query, params)
-}
-
 // Get a person to location table
 export async function addLocation(name: string): Promise<void> {
   const query = `INSERT INTO location (name) VALUES($1)`

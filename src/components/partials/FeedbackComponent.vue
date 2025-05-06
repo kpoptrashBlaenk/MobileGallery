@@ -1,5 +1,9 @@
 <template>
-  <div v-if="message" class="flex h-4.5 justify-center text-center text-sm" :class="{ 'text-red-600': !isValid }">
+  <div
+    v-if="message"
+    class="mt-2 flex h-4.5 justify-center text-center text-sm"
+    :class="{ 'text-red-600': !isValid, 'text-green-600': isValid }"
+  >
     <IonIcon v-if="!isValid" class="me-1 h-full" :icon="alertCircleOutline"></IonIcon>
     <div>{{ message }}</div>
   </div>

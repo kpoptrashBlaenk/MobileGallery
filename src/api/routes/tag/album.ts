@@ -20,15 +20,6 @@ export async function findAlbumByName(name: string): Promise<QueryResult<DBTag>>
   return await dbQuery(query, params)
 }
 
-// Find an album from album table using id
-export async function findAlbumById(id: number): Promise<QueryResult<DBTag>> {
-  const query = `SELECT * FROM album WHERE id = $1`
-
-  const params = [id]
-
-  return await dbQuery(query, params)
-}
-
 // Get an album to album table
 export async function addAlbum(name: string): Promise<void> {
   const query = `INSERT INTO album (name) VALUES($1)`

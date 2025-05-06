@@ -1,10 +1,10 @@
 import { Ref } from 'vue'
 
 export interface ChosenTags {
-  people: number[]
-  location: number
+  people: string[]
+  location: string
   season: string
-  albums: number[]
+  albums: string[]
 }
 
 export interface AndTags {

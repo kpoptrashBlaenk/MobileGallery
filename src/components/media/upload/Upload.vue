@@ -7,7 +7,7 @@
       </IonToolbar>
     </IonHeader>
     <IonContent>
-      <Preview ref="previewRef" :feedback="feedback" />
+      <Preview ref="previewRef" :feedback="feedback" v-model:media-files="mediaFiles" />
 
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
@@ -31,7 +31,7 @@
       />
 
       <!-- Upload Button -->
-      <div class="mt-7.5 flex justify-center">
+      <div class="mt-5 flex justify-center">
         <IonButton :disabled="loading" @click="upload()">Upload</IonButton>
       </div>
 
@@ -45,7 +45,9 @@
 /* Import */
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
-import { Feedback, ModalOptions, PreviewComponentRef } from '@/types'
+import { Feedback, ModalOptions, PostConfigs, PreviewComponentRef } from '@/types'
+import { apiRequestPostForm } from '@/utils/apiRequest'
+import { setFeedback } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
 import Preview from './PreviewComponent.vue'
@@ -62,6 +64,7 @@ const selected = {
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const loading = ref<boolean>(false)
 const previewRef = ref<PreviewComponentRef>()
+const mediaFiles = ref<FileList | null>(null)
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -121,8 +124,59 @@ function createSeasons(): string[] {
 
 async function upload(): Promise<void> {
   loading.value = true
-  previewRef.value?.emptyMedia()
+
+  const postConfigs: PostConfigs = {
+    url: 'media/upload',
+
+    onSuccess: (result: string) => {
+      setFeedback(feedback, result, true)
+      reset()
+    },
+
+    onFail: (error: Error) => setFeedback(feedback, error.message, false),
+
+    body: () => {
+      // Create form data because file can't be sent as json
+      const formData = new FormData()
+      for (const mediaFile of Array.from(mediaFiles.value!)) {
+        formData.append('medias', mediaFile)
+      }
+      formData.append(
+        'tags',
+        JSON.stringify({
+          people: selected.people.value,
+          location: selected.location.value,
+          season: selected.season.value,
+          albums: selected.albums.value,
+        }),
+      )
+
+      return formData
+    },
+
+    checks: () => {
+      // Check file
+      if (!mediaFiles.value || mediaFiles.value.length === 0) throw new Error('Please select a media.')
+
+      // Check location
+      if (!selected.location.value || selected.location.value.length === 0) throw new Error('Please select a location.')
+
+      // Check season
+      if (!selected.season.value || selected.season.value.length === 0) throw new Error('Please select a season.')
+    },
+  }
+
+  await apiRequestPostForm(postConfigs)
+
   loading.value = false
+}
+
+function reset(): void {
+  previewRef.value?.emptyMedia()
+  selected.people.value = []
+  selected.location.value = ''
+  selected.season.value = ''
+  selected.albums.value = []
 }
 </script>
 

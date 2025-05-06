@@ -1,11 +1,12 @@
 import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
+import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
 import express, { Request, Response } from 'express'
 import fs from 'fs'
 import multer from 'multer'
 import path from 'path'
-import { findAlbumById } from '../tag/album'
-import { findLocationById } from '../tag/location'
-import { findPersonById } from '../tag/person'
+import { findAlbumByName } from '../tag/album'
+import { findLocationByName } from '../tag/location'
+import { findPersonByName } from '../tag/person'
 import {
   addMediaAlbumRelation,
   addMediaPersonRelation,
@@ -41,7 +42,10 @@ router.post('/get', async (req: Request, res: Response) => {
 
   try {
     // Get medias from database
-    const medias = await getAllMedias(offset, albumsIsAnd, personIsAnd, albums, location, people, season)
+    const albumIds = await getAlbumsIds(albums)
+    const locationId = await getLocationId(location)
+    const peopleIds = await getPeopleIds(people)
+    const medias = await getAllMedias(offset, albumsIsAnd, personIsAnd, albumIds, locationId, peopleIds, season)
 
     const base64Medias = Promise.all(
       medias.rows.map(async (media) => {
@@ -67,13 +71,13 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
   const { people, location, season, albums }: ChosenTags = JSON.parse(req.body.tags)
 
   // Check media
-  if (!medias) {
+  if (!medias || medias.length === 0) {
     res.status(422).json('No medias selected.')
     return
   }
 
   // Check location
-  if (!location) {
+  if (!location || location.length === 0) {
     res.status(422).json('No location selected.')
     return
   }
@@ -87,7 +91,7 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
   try {
     // Check if people exist
     for (const person of people) {
-      const existingPerson = await findPersonById(person)
+      const existingPerson = await findPersonByName(person)
       if (!existingPerson) {
         res.status(404).json(`Person ${person} not found.`)
         return
@@ -96,7 +100,7 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
 
     // Check if albums exist
     for (const album of albums) {
-      const existingAlbum = await findAlbumById(album)
+      const existingAlbum = await findAlbumByName(album)
       if (!existingAlbum) {
         res.status(404).json(`Album ${album} not found.`)
         return
@@ -104,7 +108,7 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
     }
 
     // Check if location exists
-    const existingLocation = await findLocationById(location)
+    const existingLocation = await findLocationByName(location)
     if (!existingLocation) {
       res.status(404).json(`Location ${location} not found.`)
       return
@@ -115,17 +119,19 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
       const filePath = path.join('./uploads', media.filename)
 
       // Upload media to database
-      const uploadedMedia = await uploadMedia(filePath, media.mimetype, season, location)
+      const uploadedMedia = await uploadMedia(filePath, media.mimetype, season, await getLocationId(location))
 
       // Add media person relations
-      const peoplePromises = people.map(async (person) => {
-        await addMediaPersonRelation(uploadedMedia.rows[0].id, person)
-      })
+      const peopleIds = await getPeopleIds(people)
+      const peoplePromises = await Promise.all(
+        peopleIds.map((personId) => addMediaPersonRelation(uploadedMedia.rows[0].id, personId)),
+      )
 
       await Promise.all(peoplePromises)
 
       // Add media album relations
-      const albumPromises = albums.map(async (album) => {
+      const albumsIds = await getAlbumsIds(albums)
+      const albumPromises = albumsIds.map(async (album) => {
         await addMediaAlbumRelation(uploadedMedia.rows[0].id, album)
       })
 
@@ -175,7 +181,7 @@ router.post('/edit', async (req: Request, res: Response) => {
 
     // Check if people exist
     for (const person of people) {
-      const existingPerson = await findPersonById(person)
+      const existingPerson = await findPersonByName(person)
       if (!existingPerson) {
         res.status(404).json(`Person ${person} not found.`)
         return
@@ -184,7 +190,7 @@ router.post('/edit', async (req: Request, res: Response) => {
 
     // Check if albums exist
     for (const album of albums) {
-      const existingAlbum = await findAlbumById(album)
+      const existingAlbum = await findAlbumByName(album)
       if (!existingAlbum) {
         res.status(404).json(`Album ${album} not found.`)
         return
@@ -192,14 +198,14 @@ router.post('/edit', async (req: Request, res: Response) => {
     }
 
     // Check if location exists
-    const existingLocation = await findLocationById(location)
+    const existingLocation = await findLocationByName(location)
     if (!existingLocation) {
       res.status(404).json(`Location ${location} not found.`)
       return
     }
 
     // Update Media
-    await updateMedia(id, season, location)
+    await updateMedia(id, season, await getLocationId(location))
 
     // Delete all media people relations
     await deleteMediaPersonRelation(id)
@@ -208,13 +214,15 @@ router.post('/edit', async (req: Request, res: Response) => {
     await deleteMediaAlbumRelation(id)
 
     // Add media people relations
-    const peoplePromises = people.map(async (person: number) => {
+    const peopleIds = await getPeopleIds(people)
+    const peoplePromises = peopleIds.map(async (person) => {
       await addMediaPersonRelation(id, person)
     })
     await Promise.all(peoplePromises)
 
     // Add media album relations
-    const albumPromises = albums.map(async (album: number) => {
+    const albumsIds = await getAlbumsIds(albums)
+    const albumPromises = albumsIds.map(async (album) => {
       await addMediaAlbumRelation(id, album)
     })
     await Promise.all(albumPromises)

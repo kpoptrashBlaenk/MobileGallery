@@ -42,6 +42,7 @@ import { ref } from 'vue'
 /* Props */
 const props = defineProps<{
   feedback: Feedback
+  mediaFiles: FileList | null
 }>()
 
 /* Expose */
@@ -50,11 +51,11 @@ defineExpose({
 })
 
 /* Emit */
-const emit = defineEmits(['update:feedback'])
+const emit = defineEmits(['update:feedback', 'update:mediaFiles'])
 const feedback = vueComputedEmit(emit, props, 'feedback')
+const mediaFiles = vueComputedEmit(emit, props, 'mediaFiles')
 
 /* Ref */
-const mediaFiles = ref<FileList | null>()
 const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
 
@@ -88,20 +89,20 @@ function previewMedia(): void {
   mediaFiles.value = files
 
   // Read Media
-  readMedia()
+  readMedia(files)
 }
 
-function readMedia(): void {
-  if (mediaFiles.value) {
+function readMedia(files: FileList): void {
+  if (files) {
     const urls: string[] = []
 
-    Array.from(mediaFiles.value).forEach((file, index) => {
+    Array.from(files).forEach((file, index) => {
       // Create preview with reader
       const reader = new FileReader()
       reader.onload = (event: ProgressEvent<FileReader>) => {
         // urls[index] because reader is being created asynchronously and messes up the order
         urls[index] = event.target?.result as string
-        if (urls.length === mediaFiles.value?.length) mediaUrls.value = urls
+        if (urls.length === files.length) mediaUrls.value = urls
       }
       reader.readAsDataURL(file as File)
     })

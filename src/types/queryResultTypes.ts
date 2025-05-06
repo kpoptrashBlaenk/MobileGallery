@@ -22,6 +22,6 @@ export interface DBMediaWithTags {
 }
 
 export interface DBTag {
-  id: string
+  id: number
   name: string
 }

@@ -1,5 +1,5 @@
 import { MEDIA_BULK_LIMIT } from '@/configs'
-import { DBMedia, DBMediaWithTags } from '@/types'
+import { DBMedia, DBMediaWithTags, IdBody } from '@/types'
 import dbQuery from '@/utils/query'
 import { QueryResult } from 'pg'
 
@@ -140,13 +140,12 @@ export async function findMediaById(id: number): Promise<QueryResult<DBMedia>> {
 }
 
 // Add media into the media table
-export async function uploadMedia(path: string, type: string, season: string, location_id: number): Promise<void> {
+export async function uploadMedia(path: string, type: string, season: string, location_id: number): Promise<QueryResult<IdBody>> {
   const query = `INSERT INTO media (path, type, season, location_id) VALUES ($1, $2, $3, $4) RETURNING id`
 
   const params = [path, type, season, location_id]
 
-  await dbQuery(query, params)
-  return
+  return await dbQuery(query, params)
 }
 
 // Add media and person into the media person relation

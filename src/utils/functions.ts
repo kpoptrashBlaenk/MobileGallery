@@ -1,4 +1,5 @@
 import { Feedback, FeedbackRef } from '@/types'
+import { computed } from 'vue'
 
 /**
  * Checks if the file is an image
@@ -28,4 +29,18 @@ export function isVideo(data: string): boolean {
 export function setFeedback(ref: FeedbackRef, message: string | null, isValid?: boolean): void {
   if (isValid) ref.value.isValid = isValid
   ref.value.message = message
+}
+
+/**
+ * Compute a value and emit on change. This is being used to v-model to the parent component.
+ *
+ * @param emit Emit handler
+ * @param props Defined props
+ * @param name name of the prop
+ */
+export function vueComputedEmit(emit: any, props: any, name: string) {
+  return computed({
+    get: () => props[name],
+    set: (value) => emit(`update:${name}`, value),
+  })
 }

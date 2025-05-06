@@ -41,10 +41,9 @@
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
         <div class="grid grid-cols-2 gap-1">
-          <IonButton id="open-people-modal">People</IonButton>
-          <IonButton id="open-location-modal">Location</IonButton>
-          <IonButton id="open-season-modal">Season</IonButton>
-          <IonButton id="open-albums-modal">Albums</IonButton>
+          <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">{{
+            modalOption.tagContext
+          }}</IonButton>
         </div>
       </div>
 
@@ -56,146 +55,17 @@
       <!-- Feedback -->
       <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
 
-      <!-- People Modal -->
-      <IonModal
-        ref="peopleModal"
-        trigger="open-people-modal"
-        :initial-breakpoint="0.25"
-        :breakpoints="[0, 0.25, 0.5, 0.75]"
-        :expand-to-scroll="false"
-      >
-        <IonContent class="ion-padding">
-          <!-- Searchbar -->
-          <IonSearchbar
-            v-model="peopleSearch"
-            placeholder="Person"
-            @click="peopleModal?.$el.setCurrentBreakpoint(0.75)"
-          ></IonSearchbar>
-          <!-- Feedback -->
-          <FeedbackComponent v-if="peopleFeedback.message" :is-valid="peopleFeedback.isValid" :message="peopleFeedback.message" />
-          <!-- Add -->
-          <div v-else-if="peopleFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
-            <div>Person not found.</div>
-            <IonButton @click="addPerson(peopleSearch)">Add {{ peopleSearch }}</IonButton>
-          </div>
-          <!-- List -->
-          <IonList>
-            <IonItem v-for="(person, index) in peopleFiltered" :key="index">
-              <IonCheckbox
-                @ionChange="handlePeopleSelected($event, person)"
-                :checked="peopleSelected.includes(person)"
-                label-placement="end"
-                justify="start"
-                >{{ person }}</IonCheckbox
-              >
-            </IonItem>
-          </IonList>
-        </IonContent>
-      </IonModal>
-
-      <!-- Location Modal -->
-      <IonModal
-        ref="locationsModal"
-        trigger="open-location-modal"
-        :initial-breakpoint="0.25"
-        :breakpoints="[0, 0.25, 0.5, 0.75]"
-        :expand-to-scroll="false"
-      >
-        <IonContent class="ion-padding">
-          <!-- Searchbar -->
-          <IonSearchbar
-            v-model="locationsSearch"
-            placeholder="Location"
-            @click="locationsModal?.$el.setCurrentBreakpoint(0.75)"
-          ></IonSearchbar>
-          <!-- Feedback -->
-          <FeedbackComponent
-            v-if="locationsFeedback.message"
-            :is-valid="locationsFeedback.isValid"
-            :message="locationsFeedback.message"
-          />
-          <!-- Add -->
-          <div v-else-if="locationsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
-            <div>Location not found.</div>
-            <IonButton @click="addLocation(peopleSearch)">Add {{ locationsSearch }}</IonButton>
-          </div>
-          <!-- List -->
-          <IonList v-else>
-            <IonItem
-              v-for="(location, index) in locationsFiltered"
-              :key="index"
-              :button="true"
-              @click="handleLocationSelected(location)"
-              >{{ location }}
-            </IonItem>
-          </IonList>
-        </IonContent>
-      </IonModal>
-
-      <!-- Season Modal -->
-      <IonModal
-        ref="seasonsModal"
-        trigger="open-season-modal"
-        :initial-breakpoint="0.25"
-        :breakpoints="[0, 0.25, 0.5, 0.75]"
-        :expand-to-scroll="false"
-      >
-        <IonContent class="ion-padding">
-          <!-- Searchbar -->
-          <IonSearchbar
-            v-model="seasonsSearch"
-            placeholder="Season"
-            @click="seasonsModal?.$el.setCurrentBreakpoint(0.75)"
-          ></IonSearchbar>
-          <!-- Add -->
-          <div v-if="seasonsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
-            <div>Season not found.</div>
-          </div>
-          <!-- List -->
-          <IonList v-else>
-            <IonItem v-for="(season, index) in seasonsFiltered" :key="index" :button="true" @click="handleSeasonSelected(season)"
-              >{{ season }}
-            </IonItem>
-          </IonList>
-        </IonContent>
-      </IonModal>
-
-      <!-- Albums Modal -->
-      <IonModal
-        ref="albumsModal"
-        trigger="open-albums-modal"
-        :initial-breakpoint="0.25"
-        :breakpoints="[0, 0.25, 0.5, 0.75]"
-        :expand-to-scroll="false"
-      >
-        <IonContent class="ion-padding">
-          <!-- Searchbar -->
-          <IonSearchbar
-            v-model="albumsSearch"
-            placeholder="Album"
-            @click="albumsModal?.$el.setCurrentBreakpoint(0.75)"
-          ></IonSearchbar>
-          <!-- Feedback -->
-          <FeedbackComponent v-if="albumsFeedback.message" :is-valid="albumsFeedback.isValid" :message="albumsFeedback.message" />
-          <!-- Add -->
-          <div v-else-if="albumsFiltered.length === 0" class="mt-3 flex flex-col items-center justify-center gap-2">
-            <div>Album not found.</div>
-            <IonButton @click="addAlbum(peopleSearch)">Add {{ albumsSearch }}</IonButton>
-          </div>
-          <!-- List -->
-          <IonList v-else>
-            <IonItem v-for="(album, index) in albumsFiltered" :key="index">
-              <IonCheckbox
-                @ionChange="handleAlbumsSelected($event, album)"
-                :checked="albumsSelected.includes(album)"
-                label-placement="end"
-                justify="start"
-                >{{ album }}</IonCheckbox
-              >
-            </IonItem>
-          </IonList>
-        </IonContent>
-      </IonModal>
+      <!-- Modals -->
+      <TagModalComponent
+        v-for="(modalOption, index) in modalOptions"
+        :key="index"
+        :tag-context="modalOption.tagContext"
+        :api-tag-context="modalOption.apiTagContext"
+        v-model:selected="modalOption.selected"
+        :multiple="modalOption.multiple"
+        :static="modalOption.static"
+        :static-fetch="modalOption.fetch"
+      />
     </IonContent>
   </IonPage>
 </template>
@@ -203,26 +73,12 @@
 <script setup lang="ts">
 /* Import */
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
-import { Feedback, GetConfigs, PostConfigs } from '@/types'
-import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
+import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import { Feedback, ModalOptions } from '@/types'
 import { isImage, isVideo, setFeedback } from '@/utils/functions'
-import {
-  IonButton,
-  IonCheckbox,
-  IonContent,
-  IonHeader,
-  IonIcon,
-  IonItem,
-  IonList,
-  IonModal,
-  IonPage,
-  IonProgressBar,
-  IonSearchbar,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/vue'
+import { IonButton, IonContent, IonHeader, IonIcon, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
-import { computed, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
@@ -230,47 +86,41 @@ const loading = ref<boolean>(false)
 const mediaFiles = ref<FileList | null>()
 const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
-const allPeople = ref<string[]>([])
-const peopleModal = ref<InstanceType<typeof IonModal>>()
-const peopleSearch = ref<string>('')
 const peopleSelected = ref<string[]>([])
-const peopleFeedback = ref<Feedback>({ isValid: false, message: null })
-const allLocations = ref<string[]>([])
-const locationsModal = ref<InstanceType<typeof IonModal>>()
-const locationsSearch = ref<string>('')
 const locationSelected = ref<string>('')
-const locationsFeedback = ref<Feedback>({ isValid: false, message: null })
-const allSeasons = ref<string[]>([])
-const seasonsModal = ref<InstanceType<typeof IonModal>>()
-const seasonsSearch = ref<string>('')
 const seasonSelected = ref<string>('')
-const allAlbums = ref<string[]>([])
-const albumsModal = ref<InstanceType<typeof IonModal>>()
-const albumsSearch = ref<string>('')
 const albumsSelected = ref<string[]>([])
-const albumsFeedback = ref<Feedback>({ isValid: false, message: null })
-
-/* Computed */
-const peopleFiltered = computed(() =>
-  allPeople.value.filter((name) => name.toLowerCase().includes(peopleSearch.value.toLowerCase())),
-)
-const locationsFiltered = computed(() =>
-  allLocations.value.filter((name) => name.toLowerCase().includes(locationsSearch.value.toLowerCase())),
-)
-const seasonsFiltered = computed(() =>
-  allSeasons.value.filter((name) => name.toLowerCase().includes(seasonsSearch.value.toLowerCase())),
-)
-const albumsFiltered = computed(() =>
-  allAlbums.value.filter((name) => name.toLowerCase().includes(albumsSearch.value.toLowerCase())),
-)
-
-/* Mounted Lifecycle Hook */
-onMounted(() => {
-  fetchPeople()
-  fetchLocations()
-  fetchSeasons()
-  fetchAlbums()
-})
+const modalOptions = ref<ModalOptions[]>([
+  {
+    tagContext: 'people',
+    apiTagContext: 'person',
+    selected: peopleSelected,
+    multiple: true,
+    static: false,
+  },
+  {
+    tagContext: 'location',
+    apiTagContext: 'location',
+    selected: locationSelected,
+    multiple: false,
+    static: false,
+  },
+  {
+    tagContext: 'season',
+    apiTagContext: 'season',
+    selected: seasonSelected,
+    multiple: false,
+    static: true,
+    fetch: createSeasons,
+  },
+  {
+    tagContext: 'albums',
+    apiTagContext: 'album',
+    selected: albumsSelected,
+    multiple: true,
+    static: false,
+  },
+])
 
 /* DOM Manipulation */
 function previewMedia(): void {
@@ -345,38 +195,8 @@ function emptyMedia(): void {
   mediaUrls.value = []
 }
 
-/* API Requests */
-async function fetchPeople(): Promise<void> {
-  const configs: GetConfigs = {
-    url: 'tag/person/get',
-
-    onSuccess: (result: string[]) => {
-      allPeople.value = result
-      setFeedback(peopleFeedback, null)
-    },
-
-    onFail: (error: Error) => setFeedback(peopleFeedback, error.message),
-  }
-
-  await apiRequestGet(configs)
-}
-
-async function fetchLocations(): Promise<void> {
-  const configs: GetConfigs = {
-    url: 'tag/location/get',
-
-    onSuccess: (result: string[]) => {
-      allLocations.value = result
-      setFeedback(locationsFeedback, null)
-    },
-
-    onFail: (error: Error) => setFeedback(locationsFeedback, error.message),
-  }
-
-  await apiRequestGet(configs)
-}
-
-function fetchSeasons(): void {
+/* API Calls */
+function createSeasons(): string[] {
   const seasons = ['Spring', 'Summer', 'Fall', 'Winter']
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().getMonth()
@@ -397,92 +217,7 @@ function fetchSeasons(): void {
     }
   }
 
-  allSeasons.value = seasonArray
-}
-
-async function fetchAlbums(): Promise<void> {
-  const configs: GetConfigs = {
-    url: 'tag/album/get',
-
-    onSuccess: (result: string[]) => {
-      allAlbums.value = result
-      setFeedback(albumsFeedback, null)
-    },
-
-    onFail: (error: Error) => setFeedback(albumsFeedback, error.message),
-  }
-
-  await apiRequestGet(configs)
-}
-
-async function addPerson(person: string): Promise<void> {
-  const configs: PostConfigs = {
-    url: 'tag/person/add',
-
-    body: () => JSON.stringify({ name: person }),
-
-    onSuccess: () => fetchPeople(),
-
-    onFail: (error: Error) => {
-      setFeedback(peopleFeedback, error.message)
-      setTimeout(() => setFeedback(peopleFeedback, null), 2000)
-    },
-  }
-
-  await apiRequestPost(configs)
-}
-
-async function addLocation(lcoation: string): Promise<void> {
-  const configs: PostConfigs = {
-    url: 'tag/location/add',
-
-    body: () => JSON.stringify({ name: lcoation }),
-
-    onSuccess: () => fetchLocations(),
-
-    onFail: (error: Error) => {
-      setFeedback(locationsFeedback, error.message)
-      setTimeout(() => setFeedback(locationsFeedback, null), 2000)
-    },
-  }
-
-  await apiRequestPost(configs)
-}
-
-async function addAlbum(album: string): Promise<void> {
-  const configs: PostConfigs = {
-    url: 'tag/album/add',
-
-    body: () => JSON.stringify({ name: album }),
-
-    onSuccess: () => fetchAlbums(),
-
-    onFail: (error: Error) => {
-      setFeedback(albumsFeedback, error.message)
-      setTimeout(() => setFeedback(albumsFeedback, null), 2000)
-    },
-  }
-
-  await apiRequestPost(configs)
-}
-
-/* Utility Functions */
-function handlePeopleSelected(event: CustomEvent, value: string): void {
-  // If checked: push value | if unchecked: splice value
-  event.detail.checked ? peopleSelected.value.push(value) : peopleSelected.value.splice(peopleSelected.value.indexOf(value), 1)
-}
-
-function handleLocationSelected(value: string): void {
-  locationSelected.value = value
-}
-
-function handleSeasonSelected(value: string): void {
-  seasonSelected.value = value
-}
-
-function handleAlbumsSelected(event: CustomEvent, value: string): void {
-  // If checked: push value | if unchecked: splice value
-  event.detail.checked ? albumsSelected.value.push(value) : albumsSelected.value.splice(albumsSelected.value.indexOf(value), 1)
+  return seasonArray
 }
 </script>
 

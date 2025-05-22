@@ -14,7 +14,7 @@
         <swiper-slide v-for="(mediaUrl, index) in mediaUrls" :key="index" class="flex h-52 items-center justify-center">
           <div class="relative h-full object-contain">
             <!-- Media -->
-            <img class="h-full" :src="mediaUrl" />
+            <IonImg class="h-full" :src="mediaUrl" />
             <!-- Remove Button -->
             <IonButton size="small" shape="round" color="danger" class="absolute end-0 top-0 m-1" @click="removeMedia(index)">
               <IonIcon slot="icon-only" :icon="closeOutline"></IonIcon>
@@ -26,7 +26,7 @@
 
     <!-- Placeholder -->
     <div class="flex justify-center" v-else>
-      <img src="../../../../../public/placeholderImage.jpg" class="h-56" />
+      <IonImg src="../../../../../public/placeholderImage.jpg" class="h-56" />
     </div>
   </div>
 </template>
@@ -35,7 +35,7 @@
 /* Import */
 import { Feedback } from '@/types'
 import { isImage, isVideo, setFeedback, vueComputedEmit } from '@/utils/functions'
-import { IonButton, IonIcon } from '@ionic/vue'
+import { IonButton, IonIcon, IonImg } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
 import { ref } from 'vue'
 

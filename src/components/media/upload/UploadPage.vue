@@ -7,6 +7,7 @@
       </IonToolbar>
     </IonHeader>
     <IonContent>
+      <!-- Preview -->
       <Preview ref="previewRef" :feedback="feedback" v-model:media-files="mediaFiles" />
 
       <!-- Tag Buttons -->

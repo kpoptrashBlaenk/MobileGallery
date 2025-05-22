@@ -11,7 +11,7 @@
       <IonSearchbar v-model="search" placeholder="Search..." @click="modal?.$el.setCurrentBreakpoint(0.75)"></IonSearchbar>
 
       <!-- Badge -->
-      <div class="ms-4">
+      <div class="ms-4 pt-2">
         <IonBadge v-if="typeof selected === 'string'" class="p-2">
           {{ selected }}
         </IonBadge>

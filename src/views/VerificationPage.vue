@@ -3,5 +3,5 @@
 </template>
 
 <script setup lang="ts">
-import Verification from '@/components/authentication/Verification.vue'
+import Verification from '@/components/authentication/VerificationPage.vue'
 </script>

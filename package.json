@@ -1,7 +1,7 @@
 {
   "name": "MobileGallery",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,9 +9,6 @@
     "build:ios": "npx ionic cap open ios",
     "build:android": "npx ionic cap open android",
     "build:all": "vue-tsc && vite build && npx ionic cap open android && npx ionic cap open ios",
-    "preview": "vite preview",
-    "test:e2e": "cypress run",
-    "test:unit": "vitest",
     "lint": "eslint .",
     "format": "prettier --write src/",
     "db": "db-connection.bat",
@@ -45,11 +42,9 @@
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-typescript": "^12.0.0",
-    "@vue/test-utils": "^2.3.0",
     "autoprefixer": "^10.4.21",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "cypress": "^13.5.0",
     "dotenv": "^16.5.0",
     "eslint": "^8.35.0",
     "eslint-plugin-vue": "^9.9.0",
@@ -71,7 +66,6 @@
     "tsx": "^4.19.3",
     "typescript": "~5.6.2",
     "vite": "~5.2.0",
-    "vitest": "^0.34.6",
     "vue-tsc": "^2.1.10"
   },
   "description": "An Ionic project"

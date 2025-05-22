@@ -21,6 +21,10 @@ export interface DBMediaWithTags {
   albums: DBTag[]
 }
 
+export interface DBMediaWithTagsAndPath extends DBMediaWithTags {
+  media: string // url
+}
+
 export interface DBTag {
   id: number
   name: string

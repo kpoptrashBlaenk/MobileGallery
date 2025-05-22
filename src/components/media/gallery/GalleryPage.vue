@@ -27,20 +27,17 @@
         :tag-context="`${modalOption.tagContext}-filter`"
         :api-tag-context="modalOption.apiTagContext"
         v-model:selected="modalOption.selected"
+        v-model:is-and="modalOption.isAnd"
         :multiple="modalOption.multiple"
         :static="modalOption.static"
         :static-fetch="modalOption.fetch"
+        :modal-on-close="initMedias"
       />
 
       <!-- Gallery Grid -->
-      <div class="grid grid-cols-3 place-items-center gap-2 p-5">
-        <div
-          v-for="i in [
-            1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-          ]"
-          class="h-full w-full"
-        >
-          <IonImg src="../../../../public/favicon.png" class="border-1 border-gray-300" />
+      <div v-if="initialized" class="grid grid-cols-3 place-items-center gap-2 p-5">
+        <div v-for="media in medias" class="aspect-square w-full">
+          <IonImg :src="media.media" class="h-full w-full cursor-pointer border-1 border-gray-300 object-cover" />
         </div>
       </div>
     </IonContent>
@@ -50,10 +47,12 @@
 <script setup lang="ts">
 /* Import */
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
-import { ModalOptions } from '@/types'
+import { MEDIA_BULK_LIMIT } from '@/configs'
+import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
+import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 /* Const */
 const selected = {
@@ -62,9 +61,17 @@ const selected = {
   season: ref<string>(''),
   albums: ref<string[]>([]),
 }
+const isAnd = {
+  people: ref<boolean>(false),
+  albums: ref<boolean>(false),
+}
 
 /* Ref */
+const initialized = ref<boolean>(false)
+const loadedMedias = ref<number>(0)
 const loading = ref<boolean>(false)
+const maxMediasReached = ref<boolean>(false)
+const medias = ref<DBMediaWithTagsAndPath[]>([])
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -72,6 +79,7 @@ const modalOptions = ref<ModalOptions[]>([
     selected: selected.people,
     multiple: true,
     static: false,
+    isAnd: isAnd.people,
   },
   {
     tagContext: 'location',
@@ -94,6 +102,63 @@ const modalOptions = ref<ModalOptions[]>([
     selected: selected.albums,
     multiple: true,
     static: false,
+    isAnd: isAnd.albums,
   },
 ])
+
+/* Mounted Lifecycle Hook */
+onMounted(() => {
+  initMedias()
+})
+
+/* API Calls */
+async function getMedias(mediaAction: 'set' | 'push'): Promise<void> {
+  loading.value = true
+
+  const postConfigs: PostConfigs = {
+    url: 'media/get',
+
+    onSuccess: (result: DBMediaWithTagsAndPath[]) => {
+      switch (mediaAction) {
+        case 'set':
+          medias.value = result
+          break
+        case 'push':
+          result.forEach((res: DBMediaWithTagsAndPath) => {
+            medias.value.push(res)
+          })
+          break
+      }
+
+      // If not 30 results, then no more requests
+      if (result.length < MEDIA_BULK_LIMIT) maxMediasReached.value = true
+    },
+
+    onFail: (error: Error) => console.error(error.message),
+
+    body: () =>
+      JSON.stringify({
+        albums: selected.albums.value,
+        location: selected.location.value,
+        people: selected.people.value,
+        season: selected.season.value,
+        albumsIsAnd: isAnd.albums.value,
+        peopleIsAnd: isAnd.people.value,
+        offset: loadedMedias.value,
+      }),
+  }
+
+  await apiRequestPost(postConfigs)
+
+  initialized.value = true
+  loading.value = false
+  loadedMedias.value += medias.value.length - loadedMedias.value
+}
+
+/* Utility Functions */
+async function initMedias(): Promise<void> {
+  initialized.value = false
+  loadedMedias.value = 0
+  await getMedias('set')
+}
 </script>

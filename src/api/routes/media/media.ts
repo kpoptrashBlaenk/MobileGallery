@@ -18,6 +18,7 @@ export async function getAllMedias(
   m.path,
   m.type,
   m.season,
+  m.uploaded_at,
   l.id AS location_id,
   l.name AS location_name,
   COALESCE(
@@ -64,7 +65,7 @@ export async function getAllMedias(
 
       filters.push(`--sql EXISTS (
           SELECT 1 FROM media_album_relation mar
-          WHERE mar.media_id = i.id
+          WHERE mar.media_id = m.id
           AND mar.album_id = ANY($${params.length})
           )`)
     }
@@ -81,8 +82,8 @@ export async function getAllMedias(
           .map((person, index) => {
             return `--sql EXISTS (
             SELECT 1 FROM media_person_relation mpr
-            WHERE mpr.media_id = i.id
-            AND mpr.people_id = $${params.length - index}
+            WHERE mpr.media_id = m.id
+            AND mpr.person_id = $${params.length - index}
           )`
           })
           .join(' AND '),
@@ -93,8 +94,8 @@ export async function getAllMedias(
 
       filters.push(`--sql EXISTS (
           SELECT 1 FROM media_person_relation mpr
-          WHERE mpr.media_id = i.id
-          AND mpr.people_id = ANY($${params.length})
+          WHERE mpr.media_id = m.id
+          AND mpr.person_id = ANY($${params.length})
           )`)
     }
   }
@@ -126,6 +127,9 @@ export async function getAllMedias(
   // Offset
   params.push(offset)
   query += `--sql OFFSET $${params.length}`
+
+  // --sql
+  query = query.replaceAll('--sql', '')
 
   return await dbQuery(query, params)
 }

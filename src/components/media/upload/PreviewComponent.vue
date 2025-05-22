@@ -10,7 +10,13 @@
     <!-- Medias -->
     <div v-if="mediaFiles && mediaFiles.length !== 0">
       <!-- Swiper -->
-      <swiper-container speed="250" slidesPerView="1" pagination="true" cssMode="false" class="s my-auto h-56">
+      <swiper-container
+        speed="250"
+        slidesPerView="1"
+        :pagination="mediaFiles.length <= 20"
+        cssMode="false"
+        class="s my-auto h-56"
+      >
         <swiper-slide v-for="(mediaUrl, index) in mediaUrls" :key="index" class="flex h-52 items-center justify-center">
           <div class="relative h-full object-contain">
             <!-- Media -->

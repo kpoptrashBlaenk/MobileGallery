@@ -44,5 +44,5 @@ export async function getPersonId(person: string): Promise<number> {
  * @param location Location name
  */
 export async function getLocationId(location: string): Promise<number> {
-  return (await findLocationByName(location)).rows[0].id
+  return (await findLocationByName(location)).rows[0]?.id
 }

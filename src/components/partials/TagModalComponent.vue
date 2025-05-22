@@ -5,20 +5,38 @@
     :initial-breakpoint="0.25"
     :breakpoints="[0, 0.25, 0.5, 0.75]"
     :expand-to-scroll="false"
+    @did-dismiss="onDidDismiss()"
   >
     <IonContent class="ion-padding">
       <!-- Searchbar -->
       <IonSearchbar v-model="search" placeholder="Search..." @click="modal?.$el.setCurrentBreakpoint(0.75)"></IonSearchbar>
 
-      <!-- Badge -->
-      <div class="ms-4 pt-2">
-        <IonBadge v-if="typeof selected === 'string'" class="p-2">
-          {{ selected }}
-        </IonBadge>
+      <!-- And/Or Toggle -->
+      <div v-if="isAnd" class="flex justify-center">
+        <IonToggle v-model="isAnd" @ion-change="changed = true"
+          >Filter Logic: <bold>{{ isAnd ? 'AND' : 'OR' }}</bold></IonToggle
+        >
+      </div>
 
-        <IonBadge v-else v-for="(item, index) in selected" :key="index" class="me-1 p-2">
+      <!-- Badge Buttons -->
+      <div v-if="selected.length > 0" class="ms-4 pt-2">
+        <IonButton v-if="typeof selected === 'string'" size="small" shape="round" class="me-1" @click="handleSingleSelected('')">
+          {{ selected }}
+          <IonIcon slot="end" :icon="closeOutline" class="ms-1"></IonIcon>
+        </IonButton>
+
+        <IonButton
+          v-else
+          v-for="(item, index) in selected"
+          :key="index"
+          size="small"
+          shape="round"
+          class="me-1"
+          @click="handleMultipleSelected(false, item)"
+        >
           {{ item }}
-        </IonBadge>
+          <IonIcon slot="end" :icon="closeOutline" class="ms-1"></IonIcon>
+        </IonButton>
       </div>
 
       <!-- Feedback -->
@@ -34,7 +52,7 @@
       <IonList v-if="multiple">
         <IonItem v-for="(f, index) in filtered" :key="index">
           <IonCheckbox
-            @ionChange="handleMultipleSelected($event, f)"
+            @ionChange="handleMultipleSelected($event.detail.checked, f)"
             :checked="selected.includes(f)"
             label-placement="end"
             justify="start"
@@ -53,10 +71,11 @@
 
 <script setup lang="ts">
 /* Import */
-import { ApiTagContext, Feedback, GetConfigs, PostConfigs, TagContext } from '@/types'
+import { ApiTagContext, Feedback, GetConfigs, PostConfigs } from '@/types'
 import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
 import { setFeedback, vueComputedEmit } from '@/utils/functions'
-import { IonBadge, IonButton, IonCheckbox, IonContent, IonItem, IonList, IonModal, IonSearchbar } from '@ionic/vue'
+import { IonButton, IonCheckbox, IonContent, IonIcon, IonItem, IonList, IonModal, IonSearchbar, IonToggle } from '@ionic/vue'
+import { closeOutline } from 'ionicons/icons'
 import { computed, onMounted, ref } from 'vue'
 import FeedbackComponent from './FeedbackComponent.vue'
 
@@ -68,14 +87,18 @@ const props = defineProps<{
   multiple: boolean
   static: boolean
   staticFetch?: () => string[]
+  isAnd?: boolean
+  modalOnClose?: () => void
 }>()
 
 /* Emit */
-const emit = defineEmits(['update:selected'])
+const emit = defineEmits(['update:selected', 'update:isAnd'])
 const selected = vueComputedEmit(emit, props, 'selected')
+const isAnd = vueComputedEmit(emit, props, 'isAnd')
 
 /* Ref */
 const all = ref<string[]>([])
+const changed = ref<boolean>(false)
 const modal = ref<InstanceType<typeof IonModal>>()
 const search = ref<string>('')
 const feedback = ref<Feedback>({ isValid: false, message: null })
@@ -127,12 +150,21 @@ async function add(person: string): Promise<void> {
 }
 
 /* Utility Functions */
-function handleMultipleSelected(event: CustomEvent, value: string): void {
+function handleMultipleSelected(checked: boolean, value: string): void {
   // If checked: push value | if unchecked: splice value
-  event.detail.checked ? selected.value.push(value) : selected.value.splice(selected.value.indexOf(value), 1)
+  checked ? selected.value.push(value) : selected.value.splice(selected.value.indexOf(value), 1)
+  changed.value = true
 }
 
 function handleSingleSelected(value: string): void {
   selected.value = value
+  changed.value = true
+}
+
+function onDidDismiss(): void {
+  if (changed.value) {
+    props.modalOnClose?.()
+    changed.value = false
+  }
 }
 </script>

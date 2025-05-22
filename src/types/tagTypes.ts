@@ -8,7 +8,7 @@ export interface ChosenTags {
 }
 
 export interface AndTags {
-  personIsAnd: boolean
+  peopleIsAnd: boolean
   albumsIsAnd: boolean
 }
 
@@ -23,4 +23,5 @@ export type ModalOptions = {
   multiple: boolean
   static: boolean
   fetch?: () => string[]
+  isAnd?: Ref<boolean>
 }

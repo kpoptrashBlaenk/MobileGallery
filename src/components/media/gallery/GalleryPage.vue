@@ -13,18 +13,18 @@
           <IonButton
             v-for="(modalOption, index) in modalOptions"
             :key="index"
-            :id="`open-${modalOption.tagContext}-modal`"
+            :id="`open-${modalOption.tagContext}-filter-modal`"
             size="small"
             >{{ modalOption.tagContext }}</IonButton
           >
         </div>
       </div>
-      
+
       <!-- Tag Modals -->
       <TagModalComponent
         v-for="(modalOption, index) in modalOptions"
         :key="index"
-        :tag-context="modalOption.tagContext"
+        :tag-context="`${modalOption.tagContext}-filter`"
         :api-tag-context="modalOption.apiTagContext"
         v-model:selected="modalOption.selected"
         :multiple="modalOption.multiple"

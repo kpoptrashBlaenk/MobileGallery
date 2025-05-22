@@ -62,7 +62,7 @@ import FeedbackComponent from './FeedbackComponent.vue'
 
 /* Props */
 const props = defineProps<{
-  tagContext: TagContext
+  tagContext: string // TagContext removed because of filter
   apiTagContext: ApiTagContext
   selected: string | string[]
   multiple: boolean

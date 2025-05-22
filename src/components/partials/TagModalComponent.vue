@@ -10,6 +10,17 @@
       <!-- Searchbar -->
       <IonSearchbar v-model="search" placeholder="Search..." @click="modal?.$el.setCurrentBreakpoint(0.75)"></IonSearchbar>
 
+      <!-- Badge -->
+      <div class="ms-4">
+        <IonBadge v-if="typeof selected === 'string'" class="p-2">
+          {{ selected }}
+        </IonBadge>
+
+        <IonBadge v-else v-for="(item, index) in selected" :key="index" class="me-1 p-2">
+          {{ item }}
+        </IonBadge>
+      </div>
+
       <!-- Feedback -->
       <FeedbackComponent v-if="feedback.message" :is-valid="feedback.isValid" :message="feedback.message" />
 
@@ -45,7 +56,7 @@
 import { ApiTagContext, Feedback, GetConfigs, PostConfigs, TagContext } from '@/types'
 import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
 import { setFeedback, vueComputedEmit } from '@/utils/functions'
-import { IonButton, IonCheckbox, IonContent, IonItem, IonList, IonModal, IonSearchbar } from '@ionic/vue'
+import { IonBadge, IonButton, IonCheckbox, IonContent, IonItem, IonList, IonModal, IonSearchbar } from '@ionic/vue'
 import { computed, onMounted, ref } from 'vue'
 import FeedbackComponent from './FeedbackComponent.vue'
 

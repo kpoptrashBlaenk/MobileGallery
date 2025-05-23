@@ -1,11 +1,9 @@
-import { MEDIA_BULK_LIMIT } from '@/configs'
 import { DBMedia, DBMediaWithTags, IdBody } from '@/types'
 import dbQuery from '@/utils/query'
 import { QueryResult } from 'pg'
 
 // Get all medias from media table
 export async function getAllMedias(
-  offset: number,
   albumsIsAnd: boolean,
   peopleIsAnd: boolean,
   albums?: number[],
@@ -121,12 +119,7 @@ export async function getAllMedias(
   query += `--sql GROUP BY m.id, l.id`
 
   // Order By & Limit
-  params.push(offset + MEDIA_BULK_LIMIT)
-  query += `--sql ORDER BY m.uploaded_at DESC LIMIT $${params.length}`
-
-  // Offset
-  params.push(offset)
-  query += `--sql OFFSET $${params.length}`
+  query += `--sql ORDER BY m.uploaded_at DESC`
 
   // --sql
   query = query.replaceAll('--sql', '')

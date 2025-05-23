@@ -38,14 +38,14 @@ const upload = multer({
 
 // Get Medias
 router.post('/get', async (req: Request, res: Response) => {
-  const { albums, location, people, season, albumsIsAnd, peopleIsAnd, offset }: MediaFilterBody = req.body
+  const { albums, location, people, season, albumsIsAnd, peopleIsAnd }: MediaFilterBody = req.body
 
   try {
     // Get medias from database
     const albumIds = await getAlbumsIds(albums)
     const locationId = await getLocationId(location)
     const peopleIds = await getPeopleIds(people)
-    const medias = await getAllMedias(offset, albumsIsAnd, peopleIsAnd, albumIds, locationId, peopleIds, season)
+    const medias = await getAllMedias(albumsIsAnd, peopleIsAnd, albumIds, locationId, peopleIds, season)
 
     const base64Medias = Promise.all(
       medias.rows.map(async (media) => {

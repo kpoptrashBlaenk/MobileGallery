@@ -7,7 +7,7 @@
       </IonToolbar>
     </IonHeader>
     <IonContent>
-      <!-- Filter Modal -->
+      <!-- Filter Modal Buttons -->
       <div class="mx-1 mt-3 flex items-center justify-center">
         <div class="grid grid-cols-4 gap-1">
           <IonButton
@@ -47,7 +47,6 @@
 <script setup lang="ts">
 /* Import */
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
-import { MEDIA_BULK_LIMIT } from '@/configs'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
@@ -68,9 +67,7 @@ const isAnd = {
 
 /* Ref */
 const initialized = ref<boolean>(false)
-const loadedMedias = ref<number>(0)
 const loading = ref<boolean>(false)
-const maxMediasReached = ref<boolean>(false)
 const medias = ref<DBMediaWithTagsAndPath[]>([])
 const modalOptions = ref<ModalOptions[]>([
   {
@@ -112,26 +109,14 @@ onMounted(() => {
 })
 
 /* API Calls */
-async function getMedias(mediaAction: 'set' | 'push'): Promise<void> {
+async function getMedias(): Promise<void> {
   loading.value = true
 
   const postConfigs: PostConfigs = {
     url: 'media/get',
 
     onSuccess: (result: DBMediaWithTagsAndPath[]) => {
-      switch (mediaAction) {
-        case 'set':
-          medias.value = result
-          break
-        case 'push':
-          result.forEach((res: DBMediaWithTagsAndPath) => {
-            medias.value.push(res)
-          })
-          break
-      }
-
-      // If not 30 results, then no more requests
-      if (result.length < MEDIA_BULK_LIMIT) maxMediasReached.value = true
+      medias.value = result
     },
 
     onFail: (error: Error) => console.error(error.message),
@@ -144,7 +129,6 @@ async function getMedias(mediaAction: 'set' | 'push'): Promise<void> {
         season: selected.season.value,
         albumsIsAnd: isAnd.albums.value,
         peopleIsAnd: isAnd.people.value,
-        offset: loadedMedias.value,
       }),
   }
 
@@ -152,13 +136,11 @@ async function getMedias(mediaAction: 'set' | 'push'): Promise<void> {
 
   initialized.value = true
   loading.value = false
-  loadedMedias.value += medias.value.length - loadedMedias.value
 }
 
 /* Utility Functions */
 async function initMedias(): Promise<void> {
   initialized.value = false
-  loadedMedias.value = 0
-  await getMedias('set')
+  await getMedias()
 }
 </script>

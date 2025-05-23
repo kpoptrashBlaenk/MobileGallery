@@ -14,6 +14,7 @@
         speed="250"
         slidesPerView="1"
         :pagination="mediaFiles.length <= 20"
+        zoom="true"
         cssMode="false"
         class="my-auto h-56"
       >

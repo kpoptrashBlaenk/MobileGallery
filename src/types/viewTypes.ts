@@ -16,3 +16,8 @@ export type FeedbackRef = Ref<
       message: string | null
     }
 >
+
+export type Viewer = {
+  animating: boolean
+  show: boolean
+}

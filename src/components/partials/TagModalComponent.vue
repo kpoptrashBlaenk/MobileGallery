@@ -12,7 +12,7 @@
       <IonSearchbar v-model="search" placeholder="Search..." @click="modal?.$el.setCurrentBreakpoint(0.75)"></IonSearchbar>
 
       <!-- And/Or Toggle -->
-      <div v-if="isAnd" class="flex justify-center">
+      <div v-if="multiple" class="flex justify-center">
         <IonToggle v-model="isAnd" @ion-change="changed = true"
           >Filter Logic: <strong>{{ isAnd ? 'AND' : 'OR' }}</strong></IonToggle
         >

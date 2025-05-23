@@ -14,7 +14,7 @@
       <!-- And/Or Toggle -->
       <div v-if="isAnd" class="flex justify-center">
         <IonToggle v-model="isAnd" @ion-change="changed = true"
-          >Filter Logic: <bold>{{ isAnd ? 'AND' : 'OR' }}</bold></IonToggle
+          >Filter Logic: <strong>{{ isAnd ? 'AND' : 'OR' }}</strong></IonToggle
         >
       </div>
 

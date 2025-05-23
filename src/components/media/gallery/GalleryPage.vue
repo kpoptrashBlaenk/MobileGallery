@@ -1,5 +1,5 @@
 <template>
-  <IonPage>
+  <IonPage ref="page">
     <IonHeader>
       <IonToolbar>
         <IonTitle class="ms-2">Gallery</IonTitle>
@@ -34,10 +34,17 @@
         :modal-on-close="initMedias"
       />
 
+      <!-- Viewer Layer -->
+      <div v-if="viewer.show" class="fixed top-0 h-full w-full bg-white"></div>
+
       <!-- Gallery Grid -->
       <div v-if="initialized" class="grid grid-cols-3 place-items-center gap-2 p-5">
-        <div v-for="media in medias" class="aspect-square w-full">
-          <IonImg :src="media.media" class="h-full w-full cursor-pointer border-1 border-gray-300 object-cover" />
+        <div v-for="(media, index) in medias" :key="index" class="aspect-square w-full">
+          <IonImg
+            :src="media.media"
+            class="h-full w-full cursor-pointer border-1 border-gray-300 object-cover"
+            @click="openViewer($event, index)"
+          />
         </div>
       </div>
     </IonContent>
@@ -102,11 +109,79 @@ const modalOptions = ref<ModalOptions[]>([
     isAnd: isAnd.albums,
   },
 ])
+const page = ref()
+const viewer = ref({
+  animating: false,
+  show: false,
+})
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
   initMedias()
 })
+
+/* DOM Manipulation */
+function openViewer(event: CustomEvent, index: number): void {
+  // Open viewer
+  viewer.value.show = true
+
+  // Copy image (not ion image because custom elements are different)
+  const ionImageElement = event.target as HTMLIonImgElement
+  const imageElement = ionImageElement.shadowRoot?.querySelector('img') as HTMLImageElement
+  const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
+
+  // Set classes
+  cloneImage.classList.remove('object-cover')
+  cloneImage.classList.add('max-w-full', 'max-h-full', 'object-contain', 'block', 'mx-auto', 'my-auto', 'absolute')
+
+  // Append clone
+  page.value.$el.append(cloneImage)
+
+  // Get original position and size
+  const originalRect = imageElement.getBoundingClientRect()
+
+  // Place clone on top of original image
+  cloneImage.style.top = `${originalRect.y}px`
+  cloneImage.style.left = `${originalRect.x}px`
+  cloneImage.style.height = `${originalRect.height}px`
+  cloneImage.style.width = `${originalRect.width}px`
+  cloneImage.style.transition = 'all 300ms ease-in-out'
+
+  // Calculate new position and size
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+
+  const naturalAspectRatio = imageElement.naturalWidth / imageElement.naturalHeight
+
+  let finalWidth = viewportWidth
+  let finalHeight = finalWidth / naturalAspectRatio
+
+  if (finalHeight > viewportHeight) {
+    finalHeight = viewportHeight
+    finalWidth = finalHeight * naturalAspectRatio
+  }
+
+  const finalLeft = (viewportWidth - finalWidth) / 2
+  const finalTop = (viewportHeight - finalHeight) / 2
+
+  // Animate
+  requestAnimationFrame(() => {
+    cloneImage.style.top = `${finalTop}px`
+    cloneImage.style.left = `${finalLeft}px`
+    cloneImage.style.width = `${finalWidth}px`
+    cloneImage.style.height = `${finalHeight}px`
+  })
+
+  // Animation callback
+  cloneImage.addEventListener(
+    'transitionend',
+    () => {
+      viewer.value.animating = false
+      cloneImage.remove()
+    },
+    { once: true },
+  )
+}
 
 /* API Calls */
 async function getMedias(): Promise<void> {
@@ -139,8 +214,8 @@ async function getMedias(): Promise<void> {
 }
 
 /* Utility Functions */
-async function initMedias(): Promise<void> {
+function initMedias(): void {
   initialized.value = false
-  await getMedias()
+  getMedias()
 }
 </script>

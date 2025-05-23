@@ -15,7 +15,7 @@
         slidesPerView="1"
         :pagination="mediaFiles.length <= 20"
         cssMode="false"
-        class="s my-auto h-56"
+        class="my-auto h-56"
       >
         <swiper-slide v-for="(mediaUrl, index) in mediaUrls" :key="index" class="flex h-52 items-center justify-center">
           <div class="relative h-full object-contain">

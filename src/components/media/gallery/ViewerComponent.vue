@@ -6,7 +6,7 @@
     <!-- Swiper -->
     <swiper-container v-if="!viewer.animating" :speed="250" :slides-per-view="1" class="h-full w-full" :initialSlide="mediaIndex">
       <swiper-slide v-for="(media, index) in medias" :key="index" class="flex justify-center">
-        <IonImg :src="media.media" class="h-full w-full object-contain" />
+        <IonImg :src="media.media" class="w-full my-auto" />
       </swiper-slide>
     </swiper-container>
 
@@ -35,6 +35,7 @@
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
 import { IonButton, IonIcon, IonImg, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
+import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted } from 'vue'
 
 /* Props */
@@ -44,14 +45,27 @@ defineProps<{
   viewer: Viewer
 }>()
 
+/* Expose */
+defineExpose({
+  getCurrentSlide,
+})
+
 /* Mounted Lifecycle Hook */
 onMounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
   ionTabBar[1]!.style.display = 'none'
 })
 
+/* Unmounted Lifecycle Hook */
 onUnmounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
   ionTabBar[1]!.style.display = 'block'
 })
+
+/* Utility Functions */
+function getCurrentSlide(): number {
+  const swiperContainer = document.querySelector('swiper-container')
+  const swiper = swiperContainer?.swiper as Swiper
+  return swiper.activeIndex
+}
 </script>

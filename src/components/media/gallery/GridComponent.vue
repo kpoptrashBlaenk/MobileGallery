@@ -5,7 +5,7 @@
   </Transition>
 
   <!-- Gallery Grid -->
-  <div v-if="!viewer.show || (viewer.show && viewer.animating)" class="grid grid-cols-3 place-items-center gap-2 p-5">
+  <div class="grid grid-cols-3 place-items-center gap-2 p-5">
     <div v-for="(media, index) in medias" :key="index" class="aspect-square w-full">
       <IonImg
         :src="media.media"
@@ -19,9 +19,11 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
+import { App } from '@capacitor/app'
 import { IonImg } from '@ionic/vue'
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
+import { handleBackButton } from '@/utils/functions'
 
 /* Props */
 defineProps<{
@@ -33,6 +35,20 @@ const mediaIndex = ref<number>(0)
 const viewer = ref<Viewer>({
   animating: false,
   show: false,
+})
+
+/* Mounted Lifecycle Hook */
+onMounted(() => {
+  // Handle back button
+  handleBackButton(
+    () => viewer.value.show,
+    () => (viewer.value.show = false),
+  )
+})
+
+/* Before Unmounted Lifecycle Hook */
+onBeforeUnmount(() => {
+  App.removeAllListeners()
 })
 
 /* DOM Manipulation */

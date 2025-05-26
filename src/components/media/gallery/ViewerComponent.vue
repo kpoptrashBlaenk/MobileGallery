@@ -4,9 +4,16 @@
     :class="{ 'opacity-100': viewer.show }"
   >
     <!-- Swiper -->
-    <swiper-container v-if="!viewer.animating" :speed="250" :slides-per-view="1" class="h-full w-full" :initialSlide="mediaIndex">
+    <swiper-container
+      ref="swiperContainer"
+      :speed="250"
+      :slides-per-view="1"
+      class="h-full w-full"
+      :initialSlide="mediaIndex"
+      :class="{ 'opacity-0': viewer.animating }"
+    >
       <swiper-slide v-for="(media, index) in medias" :key="index" class="flex justify-center">
-        <IonImg :src="media.media" class="w-full my-auto" />
+        <IonImg :src="media.media" class="my-auto w-full" />
       </swiper-slide>
     </swiper-container>
 
@@ -35,8 +42,9 @@
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
 import { IonButton, IonIcon, IonImg, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
+import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 
 /* Props */
 defineProps<{
@@ -50,10 +58,23 @@ defineExpose({
   getCurrentSlide,
 })
 
+/* Ref */
+const swiperContainer = ref<SwiperContainer>()
+const swiper = ref<Swiper>()
+
 /* Mounted Lifecycle Hook */
 onMounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
   ionTabBar[1]!.style.display = 'none'
+
+  // Scroll into view when it's not in the grid anymore
+  swiperContainer.value?.addEventListener('swiperslidechange', () => {
+    const gridIonImageElement = document.querySelectorAll('.grid ion-img')[getCurrentSlide()] as HTMLIonImgElement
+    gridIonImageElement.scrollIntoView()
+  })
+
+  // Set swiper
+  swiper.value = swiperContainer.value?.swiper
 })
 
 /* Unmounted Lifecycle Hook */
@@ -64,8 +85,6 @@ onUnmounted(() => {
 
 /* Utility Functions */
 function getCurrentSlide(): number {
-  const swiperContainer = document.querySelector('swiper-container')
-  const swiper = swiperContainer?.swiper as Swiper
-  return swiper.activeIndex
+  return swiper.value?.activeIndex as number
 }
 </script>

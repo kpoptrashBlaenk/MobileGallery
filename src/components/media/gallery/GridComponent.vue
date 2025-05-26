@@ -54,6 +54,7 @@ function openViewer(event: CustomEvent, index: number): void {
   // Open viewer
   viewer.value.show = true
   viewer.value.animating = true
+  mediaIndex.value = index
 
   // Copy image (not ion image because custom elements are different)
   const ionImageElement = event.target as HTMLIonImgElement
@@ -108,7 +109,6 @@ function openViewer(event: CustomEvent, index: number): void {
     'transitionend',
     () => {
       // Remove
-      mediaIndex.value = index
       viewer.value.animating = false
       setTimeout(() => cloneImage.remove(), 100) // Delay so swiper has time to initialize
     },
@@ -128,7 +128,7 @@ function closeViewer(): void {
   viewer.value.animating = true
 
   // Set classes
-  cloneImage.classList.add('block', 'absolute')
+  cloneImage.classList.add('block', 'absolute', 'object-cover')
 
   // Append clone
   const page = document.querySelector('.ion-page') as HTMLDivElement

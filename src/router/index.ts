@@ -8,22 +8,32 @@ import { createRouter, createWebHistory } from '@ionic/vue-router'
 import { RouteRecordRaw } from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
-  { path: '/verification', name: 'verification', component: VerificationPage },
+  // Default
+  { path: '/', redirect: '/gallery' },
+
+  // Main
   {
     path: '/main',
     name: 'main',
+    redirect: '/gallery',
     component: MainPage,
     children: [
       { path: '/upload', name: 'upload', component: UploadPage },
       { path: '/gallery', name: 'gallery', component: GalleryPage },
     ],
   },
+
+  // Extra
   {
     path: '/extra',
     name: 'extra',
+    redirect: '/qr',
     component: ExtraPage,
     children: [{ path: '/qr', name: 'qr', component: QRPage }],
   },
+
+  // Verification
+  { path: '/verification', name: 'verification', component: VerificationPage },
 ]
 
 const router = createRouter({

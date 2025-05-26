@@ -72,7 +72,7 @@ router.post('/verify', async (req: Request, res: Response) => {
 })
 
 // Auto Login
-router.post('/login', async (req: Request, res: Response) => {
+router.get('/login', async (req: Request, res: Response) => {
   const cookies = req.cookies?.family as string
 
   // Check if cookies

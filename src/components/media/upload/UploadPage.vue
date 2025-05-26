@@ -103,7 +103,7 @@ async function upload(): Promise<void> {
   loading.value = true
 
   const postConfigs: PostConfigs = {
-    url: 'media/upload',
+    url: 'auth/media/upload',
 
     onSuccess: (result: string) => {
       setFeedback(feedback, result, true)

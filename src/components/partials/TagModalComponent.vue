@@ -118,7 +118,7 @@ async function fetch(): Promise<void> {
     all.value = props.staticFetch()
   } else {
     const configs: GetConfigs = {
-      url: `tag/${props.apiTagContext}/get`,
+      url: `auth/tag/${props.apiTagContext}/get`,
 
       onSuccess: (result: string[]) => {
         all.value = result
@@ -134,7 +134,7 @@ async function fetch(): Promise<void> {
 
 async function add(person: string): Promise<void> {
   const configs: PostConfigs = {
-    url: `tag/${props.apiTagContext}/add`,
+    url: `auth/tag/${props.apiTagContext}/add`,
 
     body: () => JSON.stringify({ name: person }),
 

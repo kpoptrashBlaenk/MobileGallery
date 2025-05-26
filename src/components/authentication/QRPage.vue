@@ -43,7 +43,7 @@ onMounted(() => {
 /* API Calls */
 async function createQRCode(): Promise<void> {
   const getConfigs: GetConfigs = {
-    url: 'auth/qr',
+    url: 'auth/auth/qr',
 
     onSuccess: (result: string) => {
       qrCode.value = result

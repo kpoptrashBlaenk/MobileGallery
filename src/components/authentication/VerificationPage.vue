@@ -77,7 +77,7 @@ function handleKeydown(event: KeyboardEvent, index: number): void {
 /* API Calls */
 async function verify(): Promise<void> {
   const postConfigs: PostConfigs = {
-    url: 'auth/verify',
+    url: 'guest/auth/verify',
 
     onSuccess: () => {
       setFeedback(feedback, null)

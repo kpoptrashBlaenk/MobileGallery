@@ -111,7 +111,7 @@ async function getMedias(): Promise<void> {
   loading.value = true
 
   const postConfigs: PostConfigs = {
-    url: 'media/get',
+    url: 'auth/media/get',
 
     onSuccess: (result: DBMediaWithTagsAndPath[]) => {
       medias.value = result

@@ -1,6 +1,6 @@
-import { findAlbumByName } from '@/api/routes/tag/album'
-import { findLocationByName } from '@/api/routes/tag/location'
-import { findPersonByName } from '@/api/routes/tag/person'
+import { findAlbumByName } from '@/api/models/album'
+import { findLocationByName } from '@/api/models/location'
+import { findPersonByName } from '@/api/models/person'
 
 /**
  * Get an array of ids of albums

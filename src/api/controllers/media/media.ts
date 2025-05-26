@@ -1,12 +1,5 @@
-import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
-import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
-import express, { Request, Response } from 'express'
-import fs from 'fs'
-import multer from 'multer'
-import path from 'path'
-import { findAlbumByName } from '../tag/album'
-import { findLocationByName } from '../tag/location'
-import { findPersonByName } from '../tag/person'
+import { findAlbumByName } from '@/api/models/album'
+import { findLocationByName } from '@/api/models/location'
 import {
   addMediaAlbumRelation,
   addMediaPersonRelation,
@@ -17,27 +10,15 @@ import {
   getAllMedias,
   updateMedia,
   uploadMedia,
-} from './media'
+} from '@/api/models/media'
+import { findPersonByName } from '@/api/models/person'
+import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
+import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
+import { Request, Response } from 'express'
+import fs from 'fs'
+import path from 'path'
 
-const router = express.Router()
-
-// Save locally
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = './uploads'
-      if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true })
-      cb(null, uploadPath)
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`)
-    },
-  }),
-  limits: { fileSize: 1000 * 1024 * 1024 },
-})
-
-// Get Medias
-router.post('/get', async (req: Request, res: Response) => {
+export async function getMediaRoute(req: Request, res: Response) {
   const { albums, location, people, season, albumsIsAnd, peopleIsAnd }: MediaFilterBody = req.body
 
   try {
@@ -63,10 +44,9 @@ router.post('/get', async (req: Request, res: Response) => {
     res.status(500).json('Error getting medias.')
     return
   }
-})
+}
 
-// Upload Media
-router.post('/upload', upload.array('medias'), async (req: Request, res: Response) => {
+export async function uploadMediaRoute(req: Request, res: Response) {
   const medias = req.files as Express.Multer.File[]
   const { people, location, season, albums }: ChosenTags = JSON.parse(req.body.tags)
 
@@ -147,10 +127,9 @@ router.post('/upload', upload.array('medias'), async (req: Request, res: Respons
     res.status(500).json('Error uploading medias.')
     return
   }
-})
+}
 
-// Edit Media
-router.post('/edit', async (req: Request, res: Response) => {
+export async function editMediaRoute(req: Request, res: Response) {
   const { people, location, season, albums, id }: MediaEditBody = req.body
 
   // Check media
@@ -234,10 +213,9 @@ router.post('/edit', async (req: Request, res: Response) => {
     res.status(500).json('Error updating media.')
     return
   }
-})
+}
 
-// Delete Media
-router.post('/delete', async (req: Request, res: Response) => {
+export async function deleteMediaRoute(req: Request, res: Response) {
   const { id }: IdBody = req.body
 
   // Check media
@@ -267,6 +245,4 @@ router.post('/delete', async (req: Request, res: Response) => {
     console.error(error)
     res.status(500).json('Error deleting media')
   }
-})
-
-export default router
+}

@@ -19,22 +19,20 @@ export async function getAllMedias(
   m.uploaded_at,
   l.id AS location_id,
   l.name AS location_name,
-  COALESCE(
-    json_agg(
-      jsonb_build_object('id', p.id, 'name', p.name)
-    )
+  (
+    SELECT json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name))
+    FROM media_person_relation mpr
+    JOIN person p ON mpr.person_id = p.id
+    WHERE mpr.media_id = m.id
   ) AS people,
-  COALESCE(
-    json_agg(
-      jsonb_build_object('id', a.id, 'name', a.name)
-    )
+  (
+    SELECT json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name))
+    FROM media_album_relation mar
+    JOIN album a ON mar.album_id = a.id
+    WHERE mar.media_id = m.id
   ) AS albums
   FROM media m
   JOIN location l ON m.location_id = l.id
-  LEFT JOIN media_person_relation mpr ON m.id = mpr.media_id
-  LEFT JOIN person p ON mpr.person_id = p.id
-  LEFT JOIN media_album_relation mar ON m.id = mar.media_id
-  LEFT JOIN album a ON mar.album_id = a.id
   `
 
   const params: any[] = []

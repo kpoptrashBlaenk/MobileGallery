@@ -74,7 +74,10 @@ const modalOptions = ref<ModalOptions[]>([
     selected: selected.people,
     multiple: true,
     static: false,
-    isAnd: isAnd.people,
+    isAnd: {
+      show: true,
+      ref: isAnd.people,
+    },
   },
   {
     tagContext: 'location',
@@ -97,7 +100,10 @@ const modalOptions = ref<ModalOptions[]>([
     selected: selected.albums,
     multiple: true,
     static: false,
-    isAnd: isAnd.albums,
+    isAnd: {
+      show: true,
+      ref: isAnd.albums,
+    },
   },
 ])
 

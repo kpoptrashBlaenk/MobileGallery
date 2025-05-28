@@ -2,13 +2,13 @@
   <IonPage>
     <IonHeader>
       <IonToolbar>
-        <IonTitle class="ml-2">Upload Media</IonTitle>
+        <IonTitle class="ml-2">Edit Media</IonTitle>
         <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
       </IonToolbar>
     </IonHeader>
     <IonContent>
       <!-- Preview -->
-      <PreviewComponent ref="previewRef" :feedback="feedback" v-model:media-files="mediaFiles" />
+      <IonImg :src="media.media" />
 
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
@@ -31,9 +31,9 @@
         :static-fetch="modalOption.fetch"
       />
 
-      <!-- Upload Button -->
+      <!-- Save Button -->
       <div class="mt-5 flex justify-center">
-        <IonButton :disabled="loading" @click="upload()">Upload</IonButton>
+        <IonButton :disabled="loading" @click="save()">Save</IonButton>
       </div>
 
       <!-- Feedback -->
@@ -46,26 +46,28 @@
 /* Import */
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
-import { Feedback, ModalOptions, PostConfigs, PreviewComponentRef } from '@/types'
-import { apiRequestPostForm } from '@/utils/apiRequest'
+import { DBMediaWithTagsAndPath, Feedback, ModalOptions, PostConfigs } from '@/types'
+import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons, setFeedback } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonButton, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
-import PreviewComponent from './PreviewComponent.vue'
+
+/* Props */
+const props = defineProps<{
+  media: DBMediaWithTagsAndPath
+}>()
 
 /* Const */
 const selected = {
-  people: ref<string[]>([]),
-  location: ref<string>(''),
-  season: ref<string>(''),
-  albums: ref<string[]>([]),
+  people: ref<string[]>(props.media.people.map((person) => person.name)),
+  location: ref<string>(props.media.location_name),
+  season: ref<string>(props.media.season),
+  albums: ref<string[]>(props.media.albums.map((album) => album.name)),
 }
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const loading = ref<boolean>(false)
-const previewRef = ref<PreviewComponentRef>()
-const mediaFiles = ref<FileList | null>(null)
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -99,41 +101,30 @@ const modalOptions = ref<ModalOptions[]>([
 ])
 
 /* API Calls */
-async function upload(): Promise<void> {
+async function save(): Promise<void> {
   loading.value = true
 
   const postConfigs: PostConfigs = {
-    url: 'auth/media/upload',
+    url: 'auth/media/edit',
 
     onSuccess: (result: string) => {
       setFeedback(feedback, result, true)
-      reset()
     },
 
     onFail: (error: Error) => setFeedback(feedback, error.message, false),
 
-    body: () => {
-      // Create form data because file can't be sent as json
-      const formData = new FormData()
-      for (const mediaFile of Array.from(mediaFiles.value!)) {
-        formData.append('medias', mediaFile)
-      }
-      formData.append(
-        'tags',
-        JSON.stringify({
-          people: selected.people.value,
-          location: selected.location.value,
-          season: selected.season.value,
-          albums: selected.albums.value,
-        }),
-      )
-
-      return formData
-    },
+    body: () =>
+      JSON.stringify({
+        people: selected.people.value,
+        location: selected.location.value,
+        season: selected.season.value,
+        albums: selected.albums.value,
+        id: props.media.media_id,
+      }),
 
     checks: () => {
       // Check file
-      if (!mediaFiles.value || mediaFiles.value.length === 0) throw new Error('Please select a media.')
+      if (!props.media) throw new Error('Please select a media.')
 
       // Check location
       if (!selected.location.value || selected.location.value.length === 0) throw new Error('Please select a location.')
@@ -143,22 +134,8 @@ async function upload(): Promise<void> {
     },
   }
 
-  await apiRequestPostForm(postConfigs)
+  await apiRequestPost(postConfigs)
 
   loading.value = false
 }
-
-function reset(): void {
-  previewRef.value?.emptyMedia()
-  selected.people.value = []
-  selected.location.value = ''
-  selected.season.value = ''
-  selected.albums.value = []
-}
 </script>
-
-<style lang="css">
-:root {
-  --swiper-pagination-top: 205px;
-}
-</style>

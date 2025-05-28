@@ -206,11 +206,11 @@ export async function editMediaRoute(req: Request, res: Response) {
     })
     await Promise.all(albumPromises)
 
-    res.status(200).json('Media updated successfully!')
+    res.status(200).json('Media edited successfully!')
     return
   } catch (error) {
     console.error(error)
-    res.status(500).json('Error updating media.')
+    res.status(500).json('Error editing media.')
     return
   }
 }

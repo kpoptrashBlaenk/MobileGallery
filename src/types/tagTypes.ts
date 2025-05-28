@@ -16,6 +16,11 @@ export type TagContext = 'people' | 'location' | 'season' | 'albums'
 
 export type ApiTagContext = 'person' | 'location' | 'season' | 'album'
 
+export type IsAnd = {
+  show: boolean
+  ref: Ref<boolean> | boolean
+}
+
 export type ModalOptions = {
   tagContext: TagContext
   apiTagContext: ApiTagContext
@@ -23,5 +28,5 @@ export type ModalOptions = {
   multiple: boolean
   static: boolean
   fetch?: () => string[]
-  isAnd?: Ref<boolean>
+  isAnd?: IsAnd
 }

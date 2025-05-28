@@ -17,6 +17,12 @@
       </swiper-slide>
     </swiper-container>
 
+    <!-- Modals -->
+    <IonModal ref="editModal">
+      <EditPage :media="medias[getCurrentSlide()]" />
+    </IonModal>
+
+    <!-- TabBar -->
     <IonTabBar slot="bottom" class="absolute bottom-0 z-50 w-full gap-5 border-t-1 border-gray-200 bg-white">
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
@@ -24,7 +30,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="openEditModal()">
         <IonIcon :icon="pencilOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark">
@@ -40,11 +46,12 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
-import { IonButton, IonIcon, IonImg, IonTabBar } from '@ionic/vue'
+import { IonButton, IonIcon, IonImg, IonModal, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted, ref } from 'vue'
+import EditPage from '../edit/EditPage.vue'
 
 /* Props */
 defineProps<{
@@ -59,6 +66,7 @@ defineExpose({
 })
 
 /* Ref */
+const editModal = ref<InstanceType<typeof IonModal>>()
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 
@@ -82,6 +90,11 @@ onUnmounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
   ionTabBar[1]!.style.display = 'block'
 })
+
+/* DOM Manipulation */
+function openEditModal(): void {
+  editModal.value?.$el.present()
+}
 
 /* Utility Functions */
 function getCurrentSlide(): number {

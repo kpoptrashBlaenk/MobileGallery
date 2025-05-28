@@ -12,10 +12,10 @@
       <IonSearchbar v-model="search" placeholder="Search..." @click="modal?.$el.setCurrentBreakpoint(0.75)"></IonSearchbar>
 
       <!-- And/Or Toggle -->
-      <div v-if="multiple" class="flex justify-center">
-        <IonToggle v-model="isAnd" @ion-change="changed = true"
-          >Filter Logic: <strong>{{ isAnd ? 'AND' : 'OR' }}</strong></IonToggle
-        >
+      <div v-if="isAnd?.show" class="flex justify-center">
+        <IonToggle v-model="isAnd.ref" @ion-change="changed = true">
+          Filter Logic: <strong>{{ isAnd.ref ? 'AND' : 'OR' }}</strong>
+        </IonToggle>
       </div>
 
       <!-- Badge Buttons -->
@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 /* Import */
-import { ApiTagContext, Feedback, GetConfigs, PostConfigs } from '@/types'
+import { ApiTagContext, Feedback, GetConfigs, IsAnd, PostConfigs } from '@/types'
 import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
 import { setFeedback, vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonCheckbox, IonContent, IonIcon, IonItem, IonList, IonModal, IonSearchbar, IonToggle } from '@ionic/vue'
@@ -87,7 +87,7 @@ const props = defineProps<{
   multiple: boolean
   static: boolean
   staticFetch?: () => string[]
-  isAnd?: boolean
+  isAnd?: IsAnd
   modalOnClose?: () => void
 }>()
 

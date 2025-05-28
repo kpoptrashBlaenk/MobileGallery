@@ -13,9 +13,9 @@
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
         <div class="grid grid-cols-2 gap-1">
-          <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">{{
-            modalOption.tagContext
-          }}</IonButton>
+          <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">
+            {{ modalOption.tagContext }}
+          </IonButton>
         </div>
       </div>
 

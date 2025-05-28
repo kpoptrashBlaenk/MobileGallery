@@ -1,7 +1,7 @@
 <template>
   <!-- Viewer Layer -->
   <Transition name="fade">
-    <ViewerComponent v-if="viewer.show" ref="viewerRef" :mediaIndex="mediaIndex" :medias="medias" :viewer="viewer" />
+    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :medias="medias" :viewer="viewer" />
   </Transition>
 
   <!-- Gallery Grid -->
@@ -18,11 +18,9 @@
 
 <script setup lang="ts">
 /* Import */
-import { DBMediaWithTagsAndPath, Viewer, ViewerComponentRef } from '@/types'
-import { handleBackButton } from '@/utils/functions'
-import { App } from '@capacitor/app'
+import { DBMediaWithTagsAndPath, Viewer } from '@/types'
 import { IonImg } from '@ionic/vue'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
 
 /* Props */
@@ -35,18 +33,6 @@ const mediaIndex = ref<number>(0)
 const viewer = ref<Viewer>({
   animating: false,
   show: false,
-})
-const viewerRef = ref<ViewerComponentRef>()
-
-/* Mounted Lifecycle Hook */
-onMounted(() => {
-  // Handle back button
-  handleBackButton(() => viewer.value.show, closeViewer)
-})
-
-/* Before Unmounted Lifecycle Hook */
-onBeforeUnmount(() => {
-  App.removeAllListeners()
 })
 
 /* DOM Manipulation */
@@ -111,61 +97,6 @@ function openViewer(event: CustomEvent, index: number): void {
       // Remove
       viewer.value.animating = false
       setTimeout(() => cloneImage.remove(), 100) // Delay so swiper has time to initialize
-    },
-    { once: true },
-  )
-}
-
-function closeViewer(): void {
-  // Copy image (not ion image because custom elements are different)
-  const currentSlide = viewerRef.value?.getCurrentSlide() as number
-  const ionImageElement = document.querySelectorAll('swiper-container ion-img')[currentSlide] as HTMLIonImgElement
-  const imageElement = ionImageElement.shadowRoot?.querySelector('img') as HTMLImageElement
-  const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
-
-  // Close viewer
-  viewer.value.show = false
-  viewer.value.animating = true
-
-  // Set classes
-  cloneImage.classList.add('block', 'absolute', 'object-cover')
-
-  // Append clone
-  const page = document.querySelector('.ion-page') as HTMLDivElement
-  page.append(cloneImage)
-
-  // Get original position and size
-  const originalRect = imageElement.getBoundingClientRect()
-
-  // Place clone on top of original image
-  cloneImage.style.top = `${originalRect.y}px`
-  cloneImage.style.left = `${originalRect.x}px`
-  cloneImage.style.height = `${originalRect.height}px`
-  cloneImage.style.width = `${originalRect.width}px`
-  cloneImage.style.transition = 'all 300ms ease-in-out'
-
-  // Place clone on top of original image
-  cloneImage.style.transition = 'all 300ms ease-in-out'
-
-  // Get position and size of image in grid
-  const gridIonImageElement = document.querySelectorAll('.grid ion-img')[currentSlide] as HTMLIonImgElement
-  const rect = gridIonImageElement.getBoundingClientRect()
-
-  // Animate
-  requestAnimationFrame(() => {
-    cloneImage.style.top = `${rect.top}px`
-    cloneImage.style.left = `${rect.left}px`
-    cloneImage.style.width = `${rect.width}px`
-    cloneImage.style.height = `${rect.height}px`
-  })
-
-  // Animation callback
-  cloneImage.addEventListener(
-    'transitionend',
-    () => {
-      // Remove
-      viewer.value.animating = false
-      cloneImage.remove()
     },
     { once: true },
   )

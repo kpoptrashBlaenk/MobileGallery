@@ -46,6 +46,7 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
+import { handleBackButton } from '@/utils/functions'
 import { IonButton, IonIcon, IonImg, IonModal, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
@@ -54,16 +55,11 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import EditPage from '../edit/EditPage.vue'
 
 /* Props */
-defineProps<{
+const props = defineProps<{
   mediaIndex: number
   medias: DBMediaWithTagsAndPath[]
   viewer: Viewer
 }>()
-
-/* Expose */
-defineExpose({
-  getCurrentSlide,
-})
 
 /* Ref */
 const editModal = ref<InstanceType<typeof IonModal>>()
@@ -83,6 +79,11 @@ onMounted(() => {
 
   // Set swiper
   swiper.value = swiperContainer.value?.swiper
+
+  // Back Button
+  handleBackButton(1, () => {
+    if (props.viewer.show) closeViewer()
+  })
 })
 
 /* Unmounted Lifecycle Hook */
@@ -94,6 +95,61 @@ onUnmounted(() => {
 /* DOM Manipulation */
 function openEditModal(): void {
   editModal.value?.$el.present()
+}
+
+function closeViewer(): void {
+  // Copy image (not ion image because custom elements are different)
+  const currentSlide = getCurrentSlide() as number
+  const ionImageElement = document.querySelectorAll('swiper-container ion-img')[currentSlide] as HTMLIonImgElement
+  const imageElement = ionImageElement.shadowRoot?.querySelector('img') as HTMLImageElement
+  const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
+
+  // Close viewer
+  props.viewer.show = false
+  props.viewer.animating = true
+
+  // Set classes
+  cloneImage.classList.add('block', 'absolute', 'object-cover')
+
+  // Append clone
+  const page = document.querySelector('.ion-page') as HTMLDivElement
+  page.append(cloneImage)
+
+  // Get original position and size
+  const originalRect = imageElement.getBoundingClientRect()
+
+  // Place clone on top of original image
+  cloneImage.style.top = `${originalRect.y}px`
+  cloneImage.style.left = `${originalRect.x}px`
+  cloneImage.style.height = `${originalRect.height}px`
+  cloneImage.style.width = `${originalRect.width}px`
+  cloneImage.style.transition = 'all 300ms ease-in-out'
+
+  // Place clone on top of original image
+  cloneImage.style.transition = 'all 300ms ease-in-out'
+
+  // Get position and size of image in grid
+  const gridIonImageElement = document.querySelectorAll('.grid ion-img')[currentSlide] as HTMLIonImgElement
+  const rect = gridIonImageElement.getBoundingClientRect()
+
+  // Animate
+  requestAnimationFrame(() => {
+    cloneImage.style.top = `${rect.top}px`
+    cloneImage.style.left = `${rect.left}px`
+    cloneImage.style.width = `${rect.width}px`
+    cloneImage.style.height = `${rect.height}px`
+  })
+
+  // Animation callback
+  cloneImage.addEventListener(
+    'transitionend',
+    () => {
+      // Remove
+      props.viewer.animating = false
+      cloneImage.remove()
+    },
+    { once: true },
+  )
 }
 
 /* Utility Functions */

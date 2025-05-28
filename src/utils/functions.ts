@@ -1,6 +1,4 @@
-// import { findCookiesByCookies } from '@/api/models/cookies'
 import { Feedback, FeedbackRef } from '@/types'
-import { App } from '@capacitor/app'
 import { computed } from 'vue'
 
 /**
@@ -77,27 +75,14 @@ export function createSeasons(): string[] {
 /**
  * Handle the hardware back button
  *
- * @param condition If true then callback, if false then window.history.back()
+ * @param priority Priority of this handler
  * @param callback What to do when button is pressed
  */
-export function handleBackButton(condition: () => boolean, callback: () => void): void {
-  App.addListener('backButton', () => {
-    if (condition()) {
+export function handleBackButton(priority: number, callback: () => void): void {
+  document.addEventListener('ionBackButton', (event) => {
+    //@ts-ignore
+    event.detail.register(priority, () => {
       callback()
-      return
-    }
-
-    window.history.back()
-  })
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (condition()) {
-        callback()
-        return
-      }
-
-      window.history.back()
-    }
+    })
   })
 }

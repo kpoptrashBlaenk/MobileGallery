@@ -20,13 +20,20 @@ export async function getAllMedias(
   l.id AS location_id,
   l.name AS location_name,
   (
-    SELECT json_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name))
+    SELECT COALESCE(
+      jsonb_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name)),
+      '[]'::jsonb
+    )
     FROM media_person_relation mpr
     JOIN person p ON mpr.person_id = p.id
     WHERE mpr.media_id = m.id
   ) AS people,
+  
   (
-    SELECT json_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name))
+    SELECT COALESCE(
+      jsonb_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)),
+      '[]'::jsonb
+    )
     FROM media_album_relation mar
     JOIN album a ON mar.album_id = a.id
     WHERE mar.media_id = m.id

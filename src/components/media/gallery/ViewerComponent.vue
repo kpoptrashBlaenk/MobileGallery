@@ -22,7 +22,11 @@
 
     <!-- Delete Popover -->
     <IonPopover :is-open="showDeletePopover" @did-dismiss="showDeletePopover = false">
-      <DeletePopoverComponent @close-delete-popover="showDeletePopover = false" />
+      <DeletePopoverComponent
+        @close-delete-popover="showDeletePopover = false"
+        :media="medias[getCurrentSlide()]"
+        v-model:loading="loading"
+      />
     </IonPopover>
 
     <!-- TabBar -->
@@ -49,7 +53,7 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, EditPageRef, Viewer } from '@/types'
-import { handleBackButton } from '@/utils/functions'
+import { handleBackButton, vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonIcon, IonImg, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
@@ -60,10 +64,15 @@ import EditPage from '../edit/EditPage.vue'
 
 /* Props */
 const props = defineProps<{
+  loading: boolean
   mediaIndex: number
   medias: DBMediaWithTagsAndPath[]
   viewer: Viewer
 }>()
+
+/* Emit */
+const emit = defineEmits(['update:loading'])
+const loading = vueComputedEmit(emit, props, 'loading')
 
 /* Ref */
 const editPageRef = ref<EditPageRef>()

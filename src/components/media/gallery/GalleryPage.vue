@@ -36,7 +36,7 @@
       />
 
       <!-- Gallery Grid -->
-      <GridComponent v-if="initialized" :medias="medias" />
+      <GridComponent v-if="initialized" :medias="medias" v-model:loading="loading" />
     </IonContent>
   </IonPage>
 </template>

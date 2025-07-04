@@ -15,7 +15,6 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, PostConfigs } from '@/types'
-import { apiRequestPost } from '@/utils/apiRequest'
 import { vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonContent } from '@ionic/vue'
 
@@ -32,20 +31,26 @@ const loading = vueComputedEmit(emit, props, 'loading')
 /* API Calls */
 async function deleteMedia(): Promise<void> {
   const postConfigs: PostConfigs = {
-    url: '/media/delete',
-
-    body: () => JSON.stringify({ id: props.media.media_id }),
+    url: 'auth/media/delete',
 
     onSuccess: () => {},
 
     onFail: (error: Error) => console.log(error.message),
+
+    body: () => JSON.stringify({ id: props.media.media_id }),
+
+    checks: () => {
+      if (!props.media) throw new Error('Please select a media.')
+    },
   }
 
   loading.value = true
 
-  await apiRequestPost(postConfigs)
+  // await apiRequestPost(postConfigs)
 
-  emit('closeDeletePopover')
-  loading.value = false
+  setTimeout(() => {
+    emit('closeDeletePopover')
+    loading.value = false
+  }, 5000)
 }
 </script>

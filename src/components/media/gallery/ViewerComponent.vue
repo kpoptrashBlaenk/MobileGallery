@@ -17,10 +17,13 @@
       </swiper-slide>
     </swiper-container>
 
-    <!-- Modals -->
-    <IonModal ref="editModal">
-      <EditPage :media="medias[getCurrentSlide()]" />
-    </IonModal>
+    <!-- Edit Modal -->
+    <EditPage v-if="swiper" ref="editPageRef" :media="medias[getCurrentSlide()]" />
+
+    <!-- Delete Popover -->
+    <IonPopover :is-open="showDeletePopover" @did-dismiss="showDeletePopover = false">
+      <DeletePopoverComponent @close-delete-popover="showDeletePopover = false" />
+    </IonPopover>
 
     <!-- TabBar -->
     <IonTabBar slot="bottom" class="absolute bottom-0 z-50 w-full gap-5 border-t-1 border-gray-200 bg-white">
@@ -30,13 +33,13 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark" @click="openEditModal()">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="editPageRef?.openModal()">
         <IonIcon :icon="pencilOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="downloadOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="showDeletePopover = true">
         <IonIcon :icon="trashOutline" slot="icon-only"></IonIcon>
       </IonButton>
     </IonTabBar>
@@ -45,13 +48,14 @@
 
 <script setup lang="ts">
 /* Import */
-import { DBMediaWithTagsAndPath, Viewer } from '@/types'
+import { DBMediaWithTagsAndPath, EditPageRef, Viewer } from '@/types'
 import { handleBackButton } from '@/utils/functions'
-import { IonButton, IonIcon, IonImg, IonModal, IonTabBar } from '@ionic/vue'
+import { IonButton, IonIcon, IonImg, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted, ref } from 'vue'
+import DeletePopoverComponent from '../delete/DeletePopoverComponent.vue'
 import EditPage from '../edit/EditPage.vue'
 
 /* Props */
@@ -62,7 +66,8 @@ const props = defineProps<{
 }>()
 
 /* Ref */
-const editModal = ref<InstanceType<typeof IonModal>>()
+const editPageRef = ref<EditPageRef>()
+const showDeletePopover = ref<boolean>(false)
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 
@@ -93,10 +98,6 @@ onUnmounted(() => {
 })
 
 /* DOM Manipulation */
-function openEditModal(): void {
-  editModal.value?.$el.present()
-}
-
 function closeViewer(): void {
   // Copy image (not ion image because custom elements are different)
   const currentSlide = getCurrentSlide() as number

@@ -1,45 +1,47 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <IonTitle class="ml-2">Edit Media</IonTitle>
-        <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
-      </IonToolbar>
-    </IonHeader>
-    <IonContent>
-      <!-- Preview -->
-      <IonImg :src="media.media" />
+  <IonModal ref="editModal">
+    <IonPage>
+      <IonHeader>
+        <IonToolbar>
+          <IonTitle class="ml-2">Edit Media</IonTitle>
+          <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <!-- Preview -->
+        <IonImg :src="media.media" />
 
-      <!-- Tag Buttons -->
-      <div class="mt-3 flex items-center justify-center">
-        <div class="grid grid-cols-2 gap-1">
-          <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">{{
-            modalOption.tagContext
-          }}</IonButton>
+        <!-- Tag Buttons -->
+        <div class="mt-3 flex items-center justify-center">
+          <div class="grid grid-cols-2 gap-1">
+            <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">{{
+              modalOption.tagContext
+            }}</IonButton>
+          </div>
         </div>
-      </div>
 
-      <!-- Modals -->
-      <TagModalComponent
-        v-for="(modalOption, index) in modalOptions"
-        :key="index"
-        :tag-context="modalOption.tagContext"
-        :api-tag-context="modalOption.apiTagContext"
-        v-model:selected="modalOption.selected"
-        :multiple="modalOption.multiple"
-        :static="modalOption.static"
-        :static-fetch="modalOption.fetch"
-      />
+        <!-- Modals -->
+        <TagModalComponent
+          v-for="(modalOption, index) in modalOptions"
+          :key="index"
+          :tag-context="modalOption.tagContext"
+          :api-tag-context="modalOption.apiTagContext"
+          v-model:selected="modalOption.selected"
+          :multiple="modalOption.multiple"
+          :static="modalOption.static"
+          :static-fetch="modalOption.fetch"
+        />
 
-      <!-- Save Button -->
-      <div class="mt-5 flex justify-center">
-        <IonButton :disabled="loading" @click="save()">Save</IonButton>
-      </div>
+        <!-- Save Button -->
+        <div class="mt-5 flex justify-center">
+          <IonButton :disabled="loading" @click="save()">Save</IonButton>
+        </div>
 
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
-    </IonContent>
-  </IonPage>
+        <!-- Feedback -->
+        <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
+      </IonContent>
+    </IonPage>
+  </IonModal>
 </template>
 
 <script setup lang="ts">
@@ -49,13 +51,16 @@ import TagModalComponent from '@/components/partials/TagModalComponent.vue'
 import { DBMediaWithTagsAndPath, Feedback, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons, setFeedback } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonButton, IonContent, IonHeader, IonImg, IonModal, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
 
 /* Props */
 const props = defineProps<{
   media: DBMediaWithTagsAndPath
 }>()
+
+/* Expose */
+defineExpose({openModal})
 
 /* Const */
 const selected = {
@@ -68,6 +73,7 @@ const selected = {
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const loading = ref<boolean>(false)
+const editModal = ref<InstanceType<typeof IonModal>>()
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -99,6 +105,11 @@ const modalOptions = ref<ModalOptions[]>([
     static: false,
   },
 ])
+
+/* DOM Manipulation */
+function openModal(): void {
+  editModal.value?.$el.present()
+}
 
 /* API Calls */
 async function save(): Promise<void> {

@@ -1,7 +1,7 @@
 <template>
   <!-- Viewer Layer -->
   <Transition name="fade">
-    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :medias="medias" :viewer="viewer" v-model:loading="loading" />
+    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :medias="medias" :viewer="viewer" />
   </Transition>
 
   <!-- Gallery Grid -->
@@ -19,20 +19,14 @@
 <script setup lang="ts">
 /* Import */
 import { DBMediaWithTagsAndPath, Viewer } from '@/types'
-import { vueComputedEmit } from '@/utils/functions'
 import { IonImg } from '@ionic/vue'
 import { ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
 
 /* Props */
-const props = defineProps<{
-  loading: boolean
+defineProps<{
   medias: DBMediaWithTagsAndPath[]
 }>()
-
-/* Emit */
-const emit = defineEmits(['update:loading'])
-const loading = vueComputedEmit(emit, props, 'loading')
 
 /* Ref */
 const mediaIndex = ref<number>(0)

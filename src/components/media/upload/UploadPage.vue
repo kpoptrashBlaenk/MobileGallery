@@ -3,7 +3,7 @@
     <IonHeader>
       <IonToolbar>
         <IonTitle class="ml-2">Upload Media</IonTitle>
-        <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
+        <IonProgressBar v-if="loadingStore.loading" type="indeterminate"></IonProgressBar>
       </IonToolbar>
     </IonHeader>
     <IonContent>
@@ -33,7 +33,7 @@
 
       <!-- Upload Button -->
       <div class="mt-5 flex justify-center">
-        <IonButton :disabled="loading" @click="upload()">Upload</IonButton>
+        <IonButton :disabled="loadingStore.loading" @click="upload()">Upload</IonButton>
       </div>
 
       <!-- Feedback -->
@@ -46,6 +46,7 @@
 /* Import */
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import { useLoadingStore } from '@/stores/loadingStore'
 import { Feedback, ModalOptions, PostConfigs, PreviewComponentRef } from '@/types'
 import { apiRequestPostForm } from '@/utils/apiRequest'
 import { createSeasons, setFeedback } from '@/utils/functions'
@@ -54,6 +55,7 @@ import { ref } from 'vue'
 import PreviewComponent from './PreviewComponent.vue'
 
 /* Const */
+const loadingStore = useLoadingStore()
 const selected = {
   people: ref<string[]>([]),
   location: ref<string>(''),
@@ -63,7 +65,6 @@ const selected = {
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
-const loading = ref<boolean>(false)
 const previewRef = ref<PreviewComponentRef>()
 const mediaFiles = ref<FileList | null>(null)
 const modalOptions = ref<ModalOptions[]>([
@@ -100,8 +101,6 @@ const modalOptions = ref<ModalOptions[]>([
 
 /* API Calls */
 async function upload(): Promise<void> {
-  loading.value = true
-
   const postConfigs: PostConfigs = {
     url: 'auth/media/upload',
 
@@ -143,9 +142,11 @@ async function upload(): Promise<void> {
     },
   }
 
+  loadingStore.start()
+
   await apiRequestPostForm(postConfigs)
 
-  loading.value = false
+  loadingStore.stop()
 }
 
 function reset(): void {

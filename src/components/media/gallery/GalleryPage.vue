@@ -3,7 +3,7 @@
     <IonHeader>
       <IonToolbar>
         <IonTitle class="ms-2">Gallery</IonTitle>
-        <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
+        <IonProgressBar v-if="loadingStore.loading" type="indeterminate"></IonProgressBar>
       </IonToolbar>
     </IonHeader>
 
@@ -36,7 +36,7 @@
       />
 
       <!-- Gallery Grid -->
-      <GridComponent v-if="initialized" :medias="medias" v-model:loading="loading" />
+      <GridComponent v-if="initialized" :medias="medias" />
     </IonContent>
   </IonPage>
 </template>
@@ -50,6 +50,7 @@ import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
 import GridComponent from './GridComponent.vue'
+import { useLoadingStore } from '@/stores/loadingStore'
 
 /* Const */
 const selected = {
@@ -62,10 +63,10 @@ const isAnd = {
   people: ref<boolean>(false),
   albums: ref<boolean>(false),
 }
+const loadingStore = useLoadingStore()
 
 /* Ref */
 const initialized = ref<boolean>(false)
-const loading = ref<boolean>(false)
 const medias = ref<DBMediaWithTagsAndPath[]>([])
 const modalOptions = ref<ModalOptions[]>([
   {
@@ -114,8 +115,6 @@ onMounted(() => {
 
 /* API Calls */
 async function getMedias(): Promise<void> {
-  loading.value = true
-
   const postConfigs: PostConfigs = {
     url: 'auth/media/get',
 
@@ -136,10 +135,12 @@ async function getMedias(): Promise<void> {
       }),
   }
 
+  loadingStore.start()
+
   await apiRequestPost(postConfigs)
 
   initialized.value = true
-  loading.value = false
+  loadingStore.stop()
 }
 
 /* Utility Functions */

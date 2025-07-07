@@ -3,7 +3,7 @@
     <IonHeader>
       <IonToolbar>
         <IonTitle class="ml-2">QR Code</IonTitle>
-        <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
+        <IonProgressBar v-if="loadingStore.loading" type="indeterminate"></IonProgressBar>
       </IonToolbar>
     </IonHeader>
     <IonContent>
@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 /* Import */
+import { useLoadingStore } from '@/stores/loadingStore'
 import { Feedback, GetConfigs } from '@/types'
 import { apiRequestGet } from '@/utils/apiRequest'
 import { setFeedback } from '@/utils/functions'
@@ -30,10 +31,12 @@ import { IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } 
 import { onMounted, ref } from 'vue'
 import FeedbackComponent from '../partials/FeedbackComponent.vue'
 
+/* Const */
+const loadingStore = useLoadingStore()
+
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const qrCode = ref<string | null>(null)
-const loading = ref<boolean>(false)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -52,8 +55,10 @@ async function createQRCode(): Promise<void> {
     onFail: (error: Error) => setFeedback(feedback, error.message),
   }
 
-  loading.value = true
+  loadingStore.start()
+
   await apiRequestGet(getConfigs)
-  loading.value = false
+  
+  loadingStore.stop()
 }
 </script>

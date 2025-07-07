@@ -14,19 +14,20 @@
 
 <script setup lang="ts">
 /* Import */
+import { useLoadingStore } from '@/stores/loadingStore'
 import { DBMediaWithTagsAndPath, PostConfigs } from '@/types'
-import { vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonContent } from '@ionic/vue'
 
 /* Props */
 const props = defineProps<{
-  loading: boolean
   media: DBMediaWithTagsAndPath
 }>()
 
 /* Emit */
-const emit = defineEmits(['closeDeletePopover', 'update:loading'])
-const loading = vueComputedEmit(emit, props, 'loading')
+const emit = defineEmits(['closeDeletePopover'])
+
+/* Const */
+const loadingStore = useLoadingStore()
 
 /* API Calls */
 async function deleteMedia(): Promise<void> {
@@ -44,13 +45,13 @@ async function deleteMedia(): Promise<void> {
     },
   }
 
-  loading.value = true
+  loadingStore.start()
 
   // await apiRequestPost(postConfigs)
 
   setTimeout(() => {
     emit('closeDeletePopover')
-    loading.value = false
+    loadingStore.stop()
   }, 5000)
 }
 </script>

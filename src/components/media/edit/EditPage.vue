@@ -4,7 +4,7 @@
       <IonHeader>
         <IonToolbar>
           <IonTitle class="ml-2">Edit Media</IonTitle>
-          <IonProgressBar v-if="loading" type="indeterminate"></IonProgressBar>
+          <IonProgressBar v-if="loadingStore.loading" type="indeterminate"></IonProgressBar>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -34,7 +34,7 @@
 
         <!-- Save Button -->
         <div class="mt-5 flex justify-center">
-          <IonButton :disabled="loading" @click="save()">Save</IonButton>
+          <IonButton :disabled="loadingStore.loading" @click="save()">Save</IonButton>
         </div>
 
         <!-- Feedback -->
@@ -48,6 +48,7 @@
 /* Import */
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import { useLoadingStore } from '@/stores/loadingStore'
 import { DBMediaWithTagsAndPath, Feedback, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons, setFeedback } from '@/utils/functions'
@@ -69,10 +70,10 @@ const selected = {
   season: ref<string>(props.media.season),
   albums: ref<string[]>(props.media.albums.map((album) => album.name)),
 }
+const loadingStore = useLoadingStore()
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
-const loading = ref<boolean>(false)
 const editModal = ref<InstanceType<typeof IonModal>>()
 const modalOptions = ref<ModalOptions[]>([
   {
@@ -113,8 +114,6 @@ function openModal(): void {
 
 /* API Calls */
 async function save(): Promise<void> {
-  loading.value = true
-
   const postConfigs: PostConfigs = {
     url: 'auth/media/edit',
 
@@ -145,8 +144,10 @@ async function save(): Promise<void> {
     },
   }
 
+  loadingStore.start()
+
   await apiRequestPost(postConfigs)
 
-  loading.value = false
+  loadingStore.stop()
 }
 </script>

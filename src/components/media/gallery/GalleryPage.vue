@@ -50,7 +50,7 @@ import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import GridComponent from './GridComponent.vue'
 
 /* Const */
@@ -108,6 +108,15 @@ const modalOptions = ref<ModalOptions[]>([
     },
   },
 ])
+
+/* Watch */
+watch(
+  () => mediaStore.fetchTrigger,
+  () => {
+    initMedias()
+    mediaStore.stopNeedToFetch()
+  },
+)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {

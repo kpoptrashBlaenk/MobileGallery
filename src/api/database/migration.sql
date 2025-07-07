@@ -31,6 +31,7 @@ CREATE TABLE
         type varchar(255) NOT NULL,
         season VARCHAR(255) NOT NULL,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         location_id INT REFERENCES location (id) NOT NULL
     );
 

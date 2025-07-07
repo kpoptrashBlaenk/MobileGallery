@@ -6,7 +6,7 @@
 
   <!-- Gallery Grid -->
   <div id="galleryGrid" class="grid grid-cols-3 place-items-center gap-2 p-5">
-    <div v-for="(media, index) in mediaStore.medias" :key="index" :index = index class="aspect-square w-full">
+    <div v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="aspect-square w-full">
       <IonImg
         :src="media.media"
         class="h-full w-full cursor-pointer border-1 border-gray-300 object-cover"

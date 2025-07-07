@@ -4,7 +4,13 @@ import multer from 'multer'
 import os from 'os'
 import path from 'path'
 import qrRoute from '../controllers/authentication/qr'
-import { deleteMediaRoute, editMediaRoute, getMediaRoute, uploadMediaRoute } from '../controllers/media/media'
+import {
+  deleteMediaRoute,
+  editMediaRoute,
+  findUpdatedMediaRoute,
+  getMediaRoute,
+  uploadMediaRoute,
+} from '../controllers/media/media'
 import { addAlbumRoute, getAlbumRoute } from '../controllers/tag/album'
 import { addLocationRoute, getLocationRoute } from '../controllers/tag/location'
 import { addPersonRoute, getPersonRoute } from '../controllers/tag/person'
@@ -48,6 +54,7 @@ authRouter.post('/tag/location/add', addLocationRoute) // Add an location
 
 // Media
 authRouter.post('/media/get', getMediaRoute) // Get all medias
+authRouter.get('/media/find_updated', findUpdatedMediaRoute) // Find last updated media
 authRouter.post('/media/upload', upload.array('medias'), uploadMediaRoute) // Upload a media
 authRouter.post('/media/edit', editMediaRoute) // Edit a media
 authRouter.post('/media/delete', deleteMediaRoute) // Delete a media

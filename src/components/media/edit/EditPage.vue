@@ -34,7 +34,7 @@
 
         <!-- Save Button -->
         <div class="mt-5 flex justify-center">
-          <IonButton :disabled="loadingStore.loading" @click="save()">Save</IonButton>
+          <IonButton :disabled="loadingStore.loading" @click="update()">Save</IonButton>
         </div>
 
         <!-- Feedback -->
@@ -61,7 +61,7 @@ const props = defineProps<{
 }>()
 
 /* Expose */
-defineExpose({openModal})
+defineExpose({ openModal })
 
 /* Const */
 const selected = {
@@ -113,11 +113,11 @@ function openModal(): void {
 }
 
 /* API Calls */
-async function save(): Promise<void> {
+async function update(): Promise<void> {
   const postConfigs: PostConfigs = {
     url: 'auth/media/edit',
 
-    onSuccess: (result: string) => {
+    onSuccess: async (result: string) => {
       setFeedback(feedback, result, true)
     },
 

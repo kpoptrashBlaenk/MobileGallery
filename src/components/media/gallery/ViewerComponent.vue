@@ -160,6 +160,9 @@ function closeViewer(): void {
       // Remove
       props.viewer.animating = false
       cloneImage.remove()
+
+      // Trigger fetch if edited
+      if (mediaStore.needToFetch) mediaStore.triggerFetch()
     },
     { once: true },
   )

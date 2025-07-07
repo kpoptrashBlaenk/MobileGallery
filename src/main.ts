@@ -41,11 +41,16 @@ import './main.css'
 import { register } from 'swiper/element/bundle'
 register()
 
+/* Pinia */
+import { createPinia } from 'pinia'
+const pinia = createPinia()
+
 const app = createApp(App)
   .use(IonicVue, {
     experimentalCloseWatcher: true,
   })
   .use(router)
+  .use(pinia)
 
 router.isReady().then(() => {
   app.mount('#app')

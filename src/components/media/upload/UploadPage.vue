@@ -47,6 +47,7 @@
 import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
 import { useLoadingStore } from '@/stores/loadingStore'
+import { useMediaStore } from '@/stores/mediaStore'
 import { Feedback, ModalOptions, PostConfigs, PreviewComponentRef } from '@/types'
 import { apiRequestPostForm } from '@/utils/apiRequest'
 import { createSeasons, setFeedback } from '@/utils/functions'
@@ -62,6 +63,7 @@ const selected = {
   season: ref<string>(''),
   albums: ref<string[]>([]),
 }
+const mediaStore = useMediaStore()
 
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
@@ -106,6 +108,7 @@ async function upload(): Promise<void> {
 
     onSuccess: (result: string) => {
       setFeedback(feedback, result, true)
+      mediaStore.startNeedToFetch()
       reset()
     },
 

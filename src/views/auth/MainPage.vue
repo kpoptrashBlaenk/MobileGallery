@@ -4,7 +4,7 @@
       <IonRouterOutlet></IonRouterOutlet>
 
       <IonTabBar slot="bottom" class="border-t-1 border-gray-200">
-        <IonTabButton tab="gallery" href="/gallery">
+        <IonTabButton tab="gallery" href="/gallery" @click="fetchIfNeeded()">
           <IonIcon :icon="imagesOutline"></IonIcon>
           <IonLabel>Gallery</IonLabel>
         </IonTabButton>
@@ -22,6 +22,16 @@
 </template>
 
 <script setup lang="ts">
+/* Import */
+import { useMediaStore } from '@/stores/mediaStore'
 import { IonIcon, IonLabel, IonPage, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/vue'
 import { cloudUploadOutline, ellipsisHorizontalOutline, imagesOutline } from 'ionicons/icons'
+
+/* Const */
+const mediaStore = useMediaStore()
+
+/* Utility Functions */
+function fetchIfNeeded(): void {
+  if (mediaStore.needToFetch) mediaStore.triggerFetch()
+}
 </script>

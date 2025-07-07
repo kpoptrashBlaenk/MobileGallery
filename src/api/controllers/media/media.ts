@@ -16,6 +16,7 @@ import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
 import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
 import { Request, Response } from 'express'
 import fs from 'fs'
+import os from 'os'
 import path from 'path'
 
 export async function getMediaRoute(req: Request, res: Response) {
@@ -96,7 +97,8 @@ export async function uploadMediaRoute(req: Request, res: Response) {
 
     // For each media
     const promises = medias.map(async (media) => {
-      const filePath = path.join('./uploads', media.filename)
+      // Create media file path
+      const filePath = path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads', media.filename)
 
       // Upload media to database
       const uploadedMedia = await uploadMedia(filePath, media.mimetype, season, await getLocationId(location))
@@ -227,13 +229,13 @@ export async function deleteMediaRoute(req: Request, res: Response) {
   try {
     // Check if media exists
     const existingMedia = await findMediaById(id)
-    if (!existingMedia) {
+    if (!existingMedia || existingMedia.rowCount === 0) {
       res.status(404).json(`Media ${id} not found.`)
       return
     }
 
     // Delete locally
-    fs.unlink('./uploads', (error) => {
+    fs.unlink(existingMedia.rows[0].path, (error) => {
       if (error) throw new Error(error.message)
     })
 

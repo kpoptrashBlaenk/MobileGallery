@@ -15,8 +15,11 @@
 <script setup lang="ts">
 /* Import */
 import { useLoadingStore } from '@/stores/loadingStore'
+import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, PostConfigs } from '@/types'
+import { apiRequestPost } from '@/utils/apiRequest'
 import { IonButton, IonContent } from '@ionic/vue'
+import { nextTick } from 'vue'
 
 /* Props */
 const props = defineProps<{
@@ -24,17 +27,20 @@ const props = defineProps<{
 }>()
 
 /* Emit */
-const emit = defineEmits(['closeDeletePopover'])
+const emit = defineEmits(['closeDeletePopover', 'closeViewer'])
 
 /* Const */
 const loadingStore = useLoadingStore()
+const mediaStore = useMediaStore()
 
 /* API Calls */
 async function deleteMedia(): Promise<void> {
   const postConfigs: PostConfigs = {
     url: 'auth/media/delete',
 
-    onSuccess: () => {},
+    onSuccess: () => {
+      mediaStore.deleteMedia(props.media.media_id)
+    },
 
     onFail: (error: Error) => console.log(error.message),
 
@@ -47,11 +53,13 @@ async function deleteMedia(): Promise<void> {
 
   loadingStore.start()
 
-  // await apiRequestPost(postConfigs)
+  await apiRequestPost(postConfigs)
 
-  setTimeout(() => {
-    emit('closeDeletePopover')
-    loadingStore.stop()
-  }, 5000)
+  loadingStore.stop()
+  emit('closeDeletePopover')
+  // Popover needs to be closed before viewer
+  nextTick(() => {
+    if (mediaStore.medias.length === 0) emit('closeViewer')
+  })
 }
 </script>

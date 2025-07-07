@@ -1,6 +1,8 @@
 import { Router } from 'express'
 import fs from 'fs'
 import multer from 'multer'
+import os from 'os'
+import path from 'path'
 import qrRoute from '../controllers/authentication/qr'
 import { deleteMediaRoute, editMediaRoute, getMediaRoute, uploadMediaRoute } from '../controllers/media/media'
 import { addAlbumRoute, getAlbumRoute } from '../controllers/tag/album'
@@ -12,7 +14,7 @@ import authOnly from './middleware/auth'
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadPath = './uploads'
+      const uploadPath = path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads')
       if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true })
       cb(null, uploadPath)
     },

@@ -36,7 +36,7 @@
       />
 
       <!-- Gallery Grid -->
-      <GridComponent v-if="initialized" :medias="medias" />
+      <GridComponent v-if="initialized" />
     </IonContent>
   </IonPage>
 </template>
@@ -44,13 +44,14 @@
 <script setup lang="ts">
 /* Import */
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import { useLoadingStore } from '@/stores/loadingStore'
+import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
 import GridComponent from './GridComponent.vue'
-import { useLoadingStore } from '@/stores/loadingStore'
 
 /* Const */
 const selected = {
@@ -64,10 +65,10 @@ const isAnd = {
   albums: ref<boolean>(false),
 }
 const loadingStore = useLoadingStore()
+const mediaStore = useMediaStore()
 
 /* Ref */
 const initialized = ref<boolean>(false)
-const medias = ref<DBMediaWithTagsAndPath[]>([])
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -119,7 +120,7 @@ async function getMedias(): Promise<void> {
     url: 'auth/media/get',
 
     onSuccess: (result: DBMediaWithTagsAndPath[]) => {
-      medias.value = result
+      mediaStore.setMedias(result)
     },
 
     onFail: (error: Error) => console.error(error.message),

@@ -12,17 +12,21 @@
       :initialSlide="mediaIndex"
       :class="{ 'opacity-0': viewer.animating }"
     >
-      <swiper-slide v-for="(media, index) in medias" :key="index" class="flex justify-center">
+      <swiper-slide v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="flex justify-center">
         <IonImg :src="media.media" class="my-auto w-full" />
       </swiper-slide>
     </swiper-container>
 
     <!-- Edit Modal -->
-    <EditPage v-if="swiper" ref="editPageRef" :media="medias[getCurrentSlide()]" />
+    <EditPage v-if="swiper" ref="editPageRef" :media="mediaStore.getMediaByIndex(getActiveSlideIndex())" />
 
     <!-- Delete Popover -->
     <IonPopover :is-open="showDeletePopover" @did-dismiss="showDeletePopover = false">
-      <DeletePopoverComponent @close-delete-popover="showDeletePopover = false" :media="medias[getCurrentSlide()]" />
+      <DeletePopoverComponent
+        @close-delete-popover="showDeletePopover = false"
+        @close-viewer="closeViewer()"
+        :media="mediaStore.getMediaByIndex(getActiveSlideIndex())"
+      />
     </IonPopover>
 
     <!-- TabBar -->
@@ -48,7 +52,8 @@
 
 <script setup lang="ts">
 /* Import */
-import { DBMediaWithTagsAndPath, EditPageRef, Viewer } from '@/types'
+import { useMediaStore } from '@/stores/mediaStore'
+import { EditPageRef, Viewer } from '@/types'
 import { handleBackButton } from '@/utils/functions'
 import { IonButton, IonIcon, IonImg, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
@@ -61,9 +66,11 @@ import EditPage from '../edit/EditPage.vue'
 /* Props */
 const props = defineProps<{
   mediaIndex: number
-  medias: DBMediaWithTagsAndPath[]
   viewer: Viewer
 }>()
+
+/* Const */
+const mediaStore = useMediaStore()
 
 /* Ref */
 const editPageRef = ref<EditPageRef>()
@@ -78,7 +85,7 @@ onMounted(() => {
 
   // Scroll into view when it's not in the grid anymore
   swiperContainer.value?.addEventListener('swiperslidechange', () => {
-    const gridIonImageElement = document.querySelectorAll('.grid ion-img')[getCurrentSlide()] as HTMLIonImgElement
+    const gridIonImageElement = document.querySelectorAll('.grid ion-img')[getActiveSlideIndex()] as HTMLIonImgElement
     gridIonImageElement.scrollIntoView()
   })
 
@@ -99,8 +106,13 @@ onUnmounted(() => {
 
 /* DOM Manipulation */
 function closeViewer(): void {
+  if (mediaStore.medias.length === 0) {
+    props.viewer.show = false
+    return
+  }
+
   // Copy image (not ion image because custom elements are different)
-  const currentSlide = getCurrentSlide() as number
+  const currentSlide = getActiveSlideIndex() as number
   const ionImageElement = document.querySelectorAll('swiper-container ion-img')[currentSlide] as HTMLIonImgElement
   const imageElement = ionImageElement.shadowRoot?.querySelector('img') as HTMLImageElement
   const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
@@ -154,7 +166,7 @@ function closeViewer(): void {
 }
 
 /* Utility Functions */
-function getCurrentSlide(): number {
-  return swiper.value?.activeIndex as number
+function getActiveSlideIndex(): number {
+  return swiper.value!.activeIndex
 }
 </script>

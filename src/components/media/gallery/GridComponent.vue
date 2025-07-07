@@ -1,12 +1,12 @@
 <template>
   <!-- Viewer Layer -->
   <Transition name="fade">
-    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :medias="medias" :viewer="viewer" />
+    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :viewer="viewer" />
   </Transition>
 
   <!-- Gallery Grid -->
-  <div class="grid grid-cols-3 place-items-center gap-2 p-5">
-    <div v-for="(media, index) in medias" :key="index" class="aspect-square w-full">
+  <div id="galleryGrid" class="grid grid-cols-3 place-items-center gap-2 p-5">
+    <div v-for="(media, index) in mediaStore.medias" :key="index" :index = index class="aspect-square w-full">
       <IonImg
         :src="media.media"
         class="h-full w-full cursor-pointer border-1 border-gray-300 object-cover"
@@ -18,15 +18,14 @@
 
 <script setup lang="ts">
 /* Import */
-import { DBMediaWithTagsAndPath, Viewer } from '@/types'
+import { useMediaStore } from '@/stores/mediaStore'
+import { Viewer } from '@/types'
 import { IonImg } from '@ionic/vue'
 import { ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
 
-/* Props */
-defineProps<{
-  medias: DBMediaWithTagsAndPath[]
-}>()
+/* Const */
+const mediaStore = useMediaStore()
 
 /* Ref */
 const mediaIndex = ref<number>(0)

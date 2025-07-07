@@ -18,7 +18,9 @@
     </swiper-container>
 
     <!-- Edit Modal -->
-    <EditPage v-if="swiper" ref="editPageRef" :media="mediaStore.getMediaByIndex(getActiveSlideIndex())" />
+    <IonModal ref="editModal">
+      <EditPage v-if="swiper" :media="mediaStore.getMediaByIndex(getActiveSlideIndex())" />
+    </IonModal>
 
     <!-- Delete Popover -->
     <IonPopover :is-open="showDeletePopover" @did-dismiss="showDeletePopover = false">
@@ -37,7 +39,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark" @click="editPageRef?.openModal()">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="editModal?.$el.present()">
         <IonIcon :icon="pencilOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark">
@@ -53,9 +55,9 @@
 <script setup lang="ts">
 /* Import */
 import { useMediaStore } from '@/stores/mediaStore'
-import { EditPageRef, Viewer } from '@/types'
+import { Viewer } from '@/types'
 import { handleBackButton } from '@/utils/functions'
-import { IonButton, IonIcon, IonImg, IonPopover, IonTabBar } from '@ionic/vue'
+import { IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
@@ -73,7 +75,7 @@ const props = defineProps<{
 const mediaStore = useMediaStore()
 
 /* Ref */
-const editPageRef = ref<EditPageRef>()
+const editModal = ref<InstanceType<typeof IonModal>>()
 const showDeletePopover = ref<boolean>(false)
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()

@@ -112,7 +112,10 @@ async function upload(): Promise<void> {
       reset()
     },
 
-    onFail: (error: Error) => setFeedback(feedback, error.message, false),
+    onFail: (error: Error) => {
+      setFeedback(feedback, error.message, false)
+      console.log(feedback.value.isValid)
+    },
 
     body: () => {
       // Create form data because file can't be sent as json

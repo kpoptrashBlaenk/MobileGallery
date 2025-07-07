@@ -27,7 +27,7 @@ export function isVideo(data: string): boolean {
  * @param isValid True for green and false for red
  */
 export function setFeedback(ref: FeedbackRef, message: string | null, isValid?: boolean): void {
-  if (isValid) ref.value.isValid = isValid
+  if (typeof isValid !== 'undefined') ref.value.isValid = isValid
   ref.value.message = message
 }
 

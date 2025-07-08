@@ -29,6 +29,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         path varchar(255) NOT NULL,
         type varchar(255) NOT NULL,
+        name varchar(255) NOT NULL,
         season VARCHAR(255) NOT NULL,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

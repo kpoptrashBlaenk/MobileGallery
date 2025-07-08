@@ -31,8 +31,11 @@
       />
     </IonPopover>
 
+    <!-- Toast Component -->
+    <ToastComponent ref="toastRef" />
+
     <!-- TabBar -->
-    <IonTabBar slot="bottom" class="absolute bottom-0 z-50 w-full gap-5 border-t-1 border-gray-200 bg-white">
+    <IonTabBar id="tabBar" slot="bottom" class="absolute bottom-0 z-50 w-full gap-5 border-t-1 border-gray-200 bg-white">
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
       </IonButton>
@@ -42,7 +45,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="editModal?.$el.present()">
         <IonIcon :icon="pencilOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="downloadMedia()">
         <IonIcon :icon="downloadOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="showDeletePopover = true">
@@ -54,9 +57,11 @@
 
 <script setup lang="ts">
 /* Import */
+import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useMediaStore } from '@/stores/mediaStore'
-import { Viewer } from '@/types'
+import { ToastComponentRef, Viewer } from '@/types'
 import { handleBackButton } from '@/utils/functions'
+import { FileTransfer } from '@capacitor/file-transfer'
 import { IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
@@ -79,6 +84,7 @@ const editModal = ref<InstanceType<typeof IonModal>>()
 const showDeletePopover = ref<boolean>(false)
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
+const toastRef = ref<ToastComponentRef>()
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -173,5 +179,23 @@ function closeViewer(): void {
 /* Utility Functions */
 function getActiveSlideIndex(): number {
   return swiper.value!.activeIndex
+}
+
+async function downloadMedia(): Promise<void> {
+  const media = mediaStore.getMediaByIndex(getActiveSlideIndex())
+
+  try {
+    // Download file
+    await FileTransfer.downloadFile({
+      url: media.media,
+      path: media.name.replace(/^\d+-/, ''),
+    })
+
+    // Downloading toast
+    toastRef.value?.openToast('Downloading...', 'info')
+  } catch (error: any) {
+    // Error toast
+    toastRef.value?.openToast(error.message, 'error')
+  }
 }
 </script>

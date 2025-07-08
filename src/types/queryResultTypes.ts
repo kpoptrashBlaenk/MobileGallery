@@ -6,6 +6,7 @@ export interface DBMedia {
   id: number
   path: string
   type: string
+  name: string
   uploaded_at: string
   season: string
   location_id: number
@@ -15,6 +16,7 @@ export interface DBMediaWithTags {
   media_id: number
   path: string
   type: string
+  name: string
   uploaded_at: string
   season: string
   location_id: number

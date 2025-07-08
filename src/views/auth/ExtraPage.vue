@@ -3,7 +3,7 @@
     <IonTabs>
       <IonRouterOutlet></IonRouterOutlet>
 
-      <IonTabBar slot="bottom" class="border-t-1 border-gray-200">
+      <IonTabBar id="tabBar" slot="bottom" class="border-t-1 border-gray-200">
         <IonTabButton tab="qr" href="/qr">
           <IonIcon :icon="qrCodeOutline"></IonIcon>
           <IonLabel>QR Code</IonLabel>

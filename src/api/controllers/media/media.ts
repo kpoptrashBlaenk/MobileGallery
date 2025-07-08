@@ -101,7 +101,7 @@ export async function uploadMediaRoute(req: Request, res: Response) {
       const filePath = path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads', media.filename)
 
       // Upload media to database
-      const uploadedMedia = await uploadMedia(filePath, media.mimetype, season, await getLocationId(location))
+      const uploadedMedia = await uploadMedia(filePath, media.mimetype, media.filename, season, await getLocationId(location))
 
       // Add media person relations
       const peopleIds = await getPeopleIds(people)

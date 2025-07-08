@@ -3,7 +3,7 @@
     <IonTabs>
       <IonRouterOutlet></IonRouterOutlet>
 
-      <IonTabBar slot="bottom" class="border-t-1 border-gray-200">
+      <IonTabBar id="tabBar" slot="bottom" class="border-t-1 border-gray-200">
         <IonTabButton tab="gallery" href="/gallery" @click="fetchIfNeeded()">
           <IonIcon :icon="imagesOutline"></IonIcon>
           <IonLabel>Gallery</IonLabel>

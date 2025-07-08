@@ -16,3 +16,12 @@
 .fade-leave-from {
   opacity: 1;
 }
+
+/* IonToast */
+ion-toast::part(container) {
+  justify-content: center;
+}
+
+ion-toast::part(message) {
+  font-size: larger;
+}

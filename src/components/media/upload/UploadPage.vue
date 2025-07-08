@@ -8,7 +8,7 @@
     </IonHeader>
     <IonContent>
       <!-- Preview -->
-      <PreviewComponent ref="previewRef" :feedback="feedback" v-model:media-files="mediaFiles" />
+      <PreviewComponent ref="previewRef" :feedback="feedback" />
 
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
@@ -68,7 +68,6 @@ const mediaStore = useMediaStore()
 /* Ref */
 const feedback = ref<Feedback>({ isValid: false, message: null })
 const previewRef = ref<PreviewComponentRef>()
-const mediaFiles = ref<FileList | null>(null)
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -103,6 +102,8 @@ const modalOptions = ref<ModalOptions[]>([
 
 /* API Calls */
 async function upload(): Promise<void> {
+  const mediaFiles = previewRef.value!.getMedia()
+
   const postConfigs: PostConfigs = {
     url: 'auth/media/upload',
 
@@ -114,14 +115,13 @@ async function upload(): Promise<void> {
 
     onFail: (error: Error) => {
       setFeedback(feedback, error.message, false)
-      console.log(feedback.value.isValid)
     },
 
     body: () => {
       // Create form data because file can't be sent as json
       const formData = new FormData()
-      for (const mediaFile of Array.from(mediaFiles.value!)) {
-        formData.append('medias', mediaFile)
+      for (const mediaFile of mediaFiles) {
+        formData.append('medias', mediaFile.blob!)
       }
       formData.append(
         'tags',
@@ -138,7 +138,7 @@ async function upload(): Promise<void> {
 
     checks: () => {
       // Check file
-      if (!mediaFiles.value || mediaFiles.value.length === 0) throw new Error('Please select a media.')
+      if (!mediaFiles || mediaFiles.length === 0) throw new Error('Please select a media.')
 
       // Check location
       if (!selected.location.value || selected.location.value.length === 0) throw new Error('Please select a location.')

@@ -6,7 +6,6 @@ import {
   deleteMedia,
   deleteMediaAlbumRelation,
   deleteMediaPersonRelation,
-  findLastUpdatedMedia,
   findMediaById,
   getAllMedias,
   updateMedia,
@@ -45,22 +44,6 @@ export async function getMediaRoute(req: Request, res: Response) {
     console.error(error)
     res.status(500).json('Error getting medias.')
     return
-  }
-}
-
-export async function findUpdatedMediaRoute(req: Request, res: Response) {
-  try {
-    const media = (await findLastUpdatedMedia()).rows[0]
-
-    const base64Media = {
-      ...media,
-      media: `${req.protocol}://${req.get('host')}/uploads/${path.basename(media.path)}`,
-    }
-
-    res.status(200).json(base64Media)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json('Error getting media.')
   }
 }
 

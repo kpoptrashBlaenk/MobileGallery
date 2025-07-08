@@ -4,7 +4,7 @@ import { computed } from 'vue'
 /**
  * Checks if the file is an image
  *
- * @param data base64 of the file
+ * @param data Mimetype of the file
  */
 export function isImage(data: string): boolean {
   return data.startsWith('data:image') || data.startsWith('image')
@@ -13,7 +13,7 @@ export function isImage(data: string): boolean {
 /**
  * Checks if the file is a video
  *
- * @param data base64 of the file
+ * @param data Mimetype of the file
  */
 export function isVideo(data: string): boolean {
   return data.startsWith('data:video') || data.startsWith('video')

@@ -1,8 +1,7 @@
 <template>
   <!-- Upload Input -->
   <div class="mt-5 flex justify-center">
-    <IonButton @click="mediaInput?.click()">Upload Media</IonButton>
-    <input ref="mediaInput" type="file" accept="image/*,video/*" multiple hidden @change="previewMedia()" />
+    <IonButton @click="openGallery()">Upload Media</IonButton>
   </div>
 
   <!-- Preview -->
@@ -42,6 +41,7 @@
 /* Import */
 import { Feedback } from '@/types'
 import { isImage, isVideo, setFeedback, vueComputedEmit } from '@/utils/functions'
+import { FilePicker, PickedFile } from '@capawesome/capacitor-file-picker'
 import { IonButton, IonIcon, IonImg } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
 import { ref } from 'vue'
@@ -49,33 +49,40 @@ import { ref } from 'vue'
 /* Props */
 const props = defineProps<{
   feedback: Feedback
-  mediaFiles: FileList | null
 }>()
 
 /* Expose */
 defineExpose({
+  getMedia,
   emptyMedia,
 })
 
 /* Emit */
-const emit = defineEmits(['update:feedback', 'update:mediaFiles'])
+const emit = defineEmits(['update:feedback'])
 const feedback = vueComputedEmit(emit, props, 'feedback')
-const mediaFiles = vueComputedEmit(emit, props, 'mediaFiles')
+const mediaFiles = ref<PickedFile[]>([])
 
 /* Ref */
-const mediaInput = ref<HTMLInputElement>()
 const mediaUrls = ref<string[]>([])
 
 /* DOM Manipulation */
+async function openGallery(): Promise<void> {
+  const files = await FilePicker.pickMedia()
+
+  mediaFiles.value = files.files
+
+  previewMedia()
+}
+
 function previewMedia(): void {
   // Remove error message
   setFeedback(feedback, null)
 
   // Get files
-  const files = mediaInput.value?.files
+  const files = mediaFiles.value
 
   // Check file
-  if (!files) {
+  if (!files || files.length === 0) {
     setFeedback(feedback, 'Please select a media file', false)
     return
   }
@@ -83,59 +90,34 @@ function previewMedia(): void {
   for (const file of Array.from(files)) {
     // FileList is not an array apparently
     // Check file type
-    if (!(isImage(file.type) || isVideo(file.type))) {
+    if (!(isImage(file.mimeType) || isVideo(file.mimeType))) {
       // Remove medias
-      mediaFiles.value = null
+      mediaFiles.value = []
 
       setFeedback(feedback, 'Please select valid media files.', false)
       return
     }
   }
 
-  // Return media files
-  mediaFiles.value = files
-
   // Read Media
-  readMedia(files)
-}
-
-function readMedia(files: FileList): void {
-  if (files) {
-    const urls: string[] = []
-
-    Array.from(files).forEach((file, index) => {
-      // Create preview with reader
-      const reader = new FileReader()
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        // urls[index] because reader is being created asynchronously and messes up the order
-        urls[index] = event.target?.result as string
-        if (urls.length === files.length) mediaUrls.value = urls
-      }
-      reader.readAsDataURL(file as File)
-    })
-  }
+  mediaUrls.value = mediaFiles.value.map((media) => URL.createObjectURL(media.blob!))
 }
 
 function removeMedia(index: number): void {
-  // Create data transfer
-  const dataTransfer = new DataTransfer()
-
-  // Loop to select all files except the deleted one
-  if (mediaInput.value?.files)
-    Array.from(mediaInput.value.files).forEach((file) => {
-      if (file.name !== mediaFiles.value?.[index].name) dataTransfer.items.add(file)
-    })
-
-  // Set new input
-  mediaInput.value!.files = dataTransfer.files
+  // Remove media
+  mediaFiles.value.splice(index, 1)
+  mediaUrls.value.splice(index, 1)
 
   // Reset preview
   previewMedia()
 }
 
+function getMedia(): PickedFile[] {
+  return mediaFiles.value
+}
+
 function emptyMedia(): void {
-  mediaInput.value!.value = ''
-  mediaFiles.value = null
+  mediaFiles.value = []
   mediaUrls.value = []
 }
 </script>

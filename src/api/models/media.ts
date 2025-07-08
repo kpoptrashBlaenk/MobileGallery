@@ -133,46 +133,6 @@ export async function getAllMedias(
   return await dbQuery(query, params)
 }
 
-// Find last updated media from media table
-export async function findLastUpdatedMedia(): Promise<QueryResult<DBMediaWithTags>> {
-  let query = `SELECT 
-  m.id AS media_id,
-  m.path,
-  m.type,
-  m.season,
-  m.uploaded_at,
-  m.updated_at,
-  l.id AS location_id,
-  l.name AS location_name,
-  (
-    SELECT COALESCE(
-      jsonb_agg(DISTINCT jsonb_build_object('id', p.id, 'name', p.name)),
-      '[]'::jsonb
-    )
-    FROM media_person_relation mpr
-    JOIN person p ON mpr.person_id = p.id
-    WHERE mpr.media_id = m.id
-  ) AS people,
-  
-  (
-    SELECT COALESCE(
-      jsonb_agg(DISTINCT jsonb_build_object('id', a.id, 'name', a.name)),
-      '[]'::jsonb
-    )
-    FROM media_album_relation mar
-    JOIN album a ON mar.album_id = a.id
-    WHERE mar.media_id = m.id
-  ) AS albums
-  FROM media m
-  JOIN location l ON m.location_id = l.id
-  GROUP BY m.id, l.id
-  ORDER BY m.updated_at DESC
-  LIMIT 1
-  `
-
-  return await dbQuery(query)
-}
-
 // Find an media from media table
 export async function findMediaById(id: number): Promise<QueryResult<DBMedia>> {
   const query = `SELECT * FROM media WHERE id = $1`

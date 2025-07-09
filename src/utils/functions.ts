@@ -19,6 +19,15 @@ export function isVideo(data: string): boolean {
 }
 
 /**
+ * Removes the unique beginning of a medianame
+ * 
+ * @param name Name of the media to format
+ */
+export function formatMediaName(name: string): string {
+  return name.replace(/^\d+-/, '')
+}
+
+/**
  * Compute a value and emit on change. This is being used to v-model to the parent component.
  *
  * @param emit Emit handler

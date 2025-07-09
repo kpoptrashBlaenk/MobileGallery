@@ -12,23 +12,25 @@
       :initialSlide="mediaIndex"
       :class="{ 'opacity-0': viewer.animating }"
     >
-      <swiper-slide v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="flex justify-center">
-        <IonImg :src="media.media" class="my-auto w-full" />
+      <swiper-slide
+        v-for="(media, index) in mediaStore.medias"
+        :key="index"
+        :index="index"
+        class="flex flex-col justify-center py-14"
+      >
+        <IonImg :src="media.media" class="w-full" :class="showInfo ? 'h-1/2 object-cover' : ''" />
+        <InfoComponent v-if="showInfo" :media="media" />
       </swiper-slide>
     </swiper-container>
 
     <!-- Edit Modal -->
     <IonModal ref="editModal">
-      <EditPage v-if="swiper" :media="mediaStore.getMediaByIndex(getActiveSlideIndex())" />
+      <EditPage v-if="swiper" :media="media" />
     </IonModal>
 
     <!-- Delete Popover -->
     <IonPopover :is-open="showDeletePopover" @did-dismiss="showDeletePopover = false">
-      <DeletePopoverComponent
-        @close-delete-popover="showDeletePopover = false"
-        @close-viewer="closeViewer()"
-        :media="mediaStore.getMediaByIndex(getActiveSlideIndex())"
-      />
+      <DeletePopoverComponent @close-delete-popover="showDeletePopover = false" @close-viewer="closeViewer()" :media="media" />
     </IonPopover>
 
     <!-- Toast Component -->
@@ -39,7 +41,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="showInfo = !showInfo">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="editModal?.$el.present()">
@@ -59,8 +61,8 @@
 /* Import */
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useMediaStore } from '@/stores/mediaStore'
-import { ToastComponentRef, Viewer } from '@/types'
-import { handleBackButton } from '@/utils/functions'
+import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
+import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
 import { IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
@@ -69,6 +71,7 @@ import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted, ref } from 'vue'
 import DeletePopoverComponent from '../delete/DeletePopoverComponent.vue'
 import EditPage from '../edit/EditPage.vue'
+import InfoComponent from '../info/InfoComponent.vue'
 
 /* Props */
 const props = defineProps<{
@@ -80,11 +83,13 @@ const props = defineProps<{
 const mediaStore = useMediaStore()
 
 /* Ref */
+const media = ref<DBMediaWithTagsAndPath>(mediaStore.getMediaByIndex(props.mediaIndex))
 const editModal = ref<InstanceType<typeof IonModal>>()
 const showDeletePopover = ref<boolean>(false)
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 const toastRef = ref<ToastComponentRef>()
+const showInfo = ref<boolean>(true)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -99,6 +104,11 @@ onMounted(() => {
 
   // Set swiper
   swiper.value = swiperContainer.value?.swiper
+
+  // Change media on slide change
+  swiper.value?.on('slideChange', () => {
+    media.value = mediaStore.getMediaByIndex(getActiveSlideIndex())
+  })
 
   // Back Button
   handleBackButton(1, () => {
@@ -188,7 +198,7 @@ async function downloadMedia(): Promise<void> {
     // Download file
     await FileTransfer.downloadFile({
       url: media.media,
-      path: media.name.replace(/^\d+-/, ''),
+      path: formatMediaName(media.name),
     })
 
     // Downloading toast

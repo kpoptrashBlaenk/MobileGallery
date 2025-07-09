@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="viewerRef"
     class="fixed top-0 h-screen w-screen bg-white opacity-0 transition-opacity duration-1000"
     :class="{ 'opacity-100': viewer.show }"
   >
@@ -18,7 +19,11 @@
         :index="index"
         class="flex flex-col justify-center py-14"
       >
-        <IonImg :src="media.media" class="w-full transition-all duration-500 ease-in-out" :class="showInfo ? 'h-3/5' : 'h-full'" />
+        <IonImg
+          :src="media.media"
+          class="w-full transition-all duration-500 ease-in-out"
+          :class="showInfo ? 'h-3/5' : 'h-full'"
+        />
         <InfoComponent :show-info="showInfo" :media="media" />
       </swiper-slide>
     </swiper-container>
@@ -64,7 +69,7 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
-import { IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
+import { createGesture, GestureDetail, IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
@@ -90,6 +95,7 @@ const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 const toastRef = ref<ToastComponentRef>()
 const showInfo = ref<boolean>(false)
+const viewerRef = ref<HTMLDivElement>()
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -109,6 +115,30 @@ onMounted(() => {
   swiper.value?.on('slideChange', () => {
     media.value = mediaStore.getMediaByIndex(getActiveSlideIndex())
   })
+
+  /* Info gesture */
+  const gesture = createGesture({
+    el: viewerRef.value as Node,
+    gestureName: 'infoGesture',
+    direction: 'y',
+    threshold: 0,
+    onMove: (event: GestureDetail) => {
+      if (!props.viewer.show) {
+        return
+      }
+
+      if (event.deltaY < -50 && event.velocityY < -0.8) {
+        showInfo.value = true
+        return
+      }
+
+      if (event.deltaY > 50 && event.velocityY > 0.8) {
+        showInfo.value = false
+        return
+      }
+    },
+  })
+  gesture.enable(true)
 
   // Back Button
   handleBackButton(1, () => {

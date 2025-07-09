@@ -16,9 +16,11 @@ export async function getAllMedias(
   m.path,
   m.type,
   m.name,
+  m.size,
+  m.width,
+  m.height,
   m.season,
   m.uploaded_at,
-  m.updated_at,
   l.id AS location_id,
   l.name AS location_name,
   (
@@ -144,10 +146,19 @@ export async function findMediaById(id: number): Promise<QueryResult<DBMedia>> {
 }
 
 // Add media into the media table
-export async function uploadMedia(path: string, type: string, name: string, season: string, location_id: number): Promise<QueryResult<IdBody>> {
-  const query = `INSERT INTO media (path, type, name, season, location_id) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+export async function uploadMedia(
+  path: string,
+  type: string,
+  name: string,
+  size: number,
+  width: number,
+  height: number,
+  season: string,
+  location_id: number,
+): Promise<QueryResult<IdBody>> {
+  const query = `INSERT INTO media (path, type, name, size, width, height, season, location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
 
-  const params = [path, type, name, season, location_id]
+  const params = [path, type, name, size, width, height, season, location_id]
 
   return await dbQuery(query, params)
 }

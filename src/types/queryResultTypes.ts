@@ -7,6 +7,9 @@ export interface DBMedia {
   path: string
   type: string
   name: string
+  size: number
+  width: number
+  height: number
   uploaded_at: string
   season: string
   location_id: number
@@ -17,6 +20,9 @@ export interface DBMediaWithTags {
   path: string
   type: string
   name: string
+  size: number
+  width: number
+  height: number
   uploaded_at: string
   season: string
   location_id: number

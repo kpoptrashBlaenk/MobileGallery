@@ -16,8 +16,8 @@ import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
 import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
 import { Request, Response } from 'express'
 import fs from 'fs'
-import os from 'os'
 import path from 'path'
+import sharp from 'sharp'
 
 export async function getMediaRoute(req: Request, res: Response) {
   const { albums, location, people, season, albumsIsAnd, peopleIsAnd }: MediaFilterBody = req.body
@@ -97,11 +97,20 @@ export async function uploadMediaRoute(req: Request, res: Response) {
 
     // For each media
     const promises = medias.map(async (media) => {
-      // Create media file path
-      const filePath = path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads', media.filename)
+      // Use sharp to get metadata
+      const metadata = await sharp(media.path).metadata()
 
       // Upload media to database
-      const uploadedMedia = await uploadMedia(filePath, media.mimetype, media.filename, season, await getLocationId(location))
+      const uploadedMedia = await uploadMedia(
+        media.path,
+        media.mimetype,
+        media.filename,
+        media.size,
+        metadata.width,
+        metadata.height,
+        season,
+        await getLocationId(location),
+      )
 
       // Add media person relations
       const peopleIds = await getPeopleIds(people)

@@ -27,12 +27,14 @@ CREATE TABLE
 CREATE TABLE
     media (
         id SERIAL PRIMARY KEY,
-        path varchar(255) NOT NULL,
-        type varchar(255) NOT NULL,
-        name varchar(255) NOT NULL,
+        path VARCHAR(255) NOT NULL,
+        type VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        size BIGINT NOT NULL,
+        width INT NOT NULL,
+        height INT NOT NULL,
         season VARCHAR(255) NOT NULL,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         location_id INT REFERENCES location (id) NOT NULL
     );
 

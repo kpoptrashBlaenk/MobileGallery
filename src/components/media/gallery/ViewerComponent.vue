@@ -18,8 +18,8 @@
         :index="index"
         class="flex flex-col justify-center py-14"
       >
-        <IonImg :src="media.media" class="w-full" :class="showInfo ? 'h-1/2 object-cover' : ''" />
-        <InfoComponent v-if="showInfo" :media="media" />
+        <IonImg :src="media.media" class="w-full transition-all duration-500 ease-in-out" :class="showInfo ? 'h-3/5' : 'h-full'" />
+        <InfoComponent :show-info="showInfo" :media="media" />
       </swiper-slide>
     </swiper-container>
 
@@ -89,7 +89,7 @@ const showDeletePopover = ref<boolean>(false)
 const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 const toastRef = ref<ToastComponentRef>()
-const showInfo = ref<boolean>(true)
+const showInfo = ref<boolean>(false)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {

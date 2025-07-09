@@ -1,5 +1,8 @@
 <template>
-  <div class="h-1/2 ps-5 text-sm text-gray-700">
+  <div
+    class="h-2/5 overflow-hidden ps-5 text-sm text-gray-700 transition-all duration-500 ease-in-out"
+    :class="showInfo ? 'max-h-[100vh]' : 'max-h-[0vh]'"
+  >
     <!-- Date -->
     <p class="mt-2 text-base font-bold text-black">
       {{ formatDate(media.uploaded_at) }}
@@ -17,16 +20,15 @@
 
     <!-- Tags -->
     <p class="mt-2 text-base font-bold text-black">Tags</p>
-    <div class="mt-1 flex gap-5">
-      <p>
-        <IonIcon :icon="calendar"></IonIcon>
-        {{ media.season }}
-      </p>
-      <p>
-        <IonIcon :icon="location"></IonIcon>
-        {{ media.location_name }}
-      </p>
-    </div>
+
+    <p class="mt-1">
+      <IonIcon :icon="calendar"></IonIcon>
+      {{ media.season }}
+    </p>
+    <p class="mt-1">
+      <IonIcon :icon="location"></IonIcon>
+      {{ media.location_name }}
+    </p>
 
     <div v-if="media.people.length > 0" class="mt-1 flex items-center gap-1">
       <IonIcon :icon="people"></IonIcon>
@@ -56,6 +58,7 @@ import { albums, calendar, location, people } from 'ionicons/icons'
 /* Props */
 defineProps<{
   media: DBMediaWithTagsAndPath
+  showInfo: boolean
 }>()
 
 /* Utility Functions */

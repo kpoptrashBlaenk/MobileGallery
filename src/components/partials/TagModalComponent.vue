@@ -39,11 +39,11 @@
         </IonButton>
       </div>
 
-      <!-- Feedback -->
-      <FeedbackComponent v-if="feedback.message" :is-valid="feedback.isValid" :message="feedback.message" />
+      <!-- Toast -->
+      <ToastComponent ref="toastRef" />
 
       <!-- Add -->
-      <div v-else-if="filtered.length === 0 && !static" class="mt-3 flex flex-col items-center justify-center gap-2">
+      <div v-if="filtered.length === 0 && !static" class="mt-3 flex flex-col items-center justify-center gap-2">
         <div>Nothing found.</div>
         <IonButton @click="add(search)">Add {{ search }}</IonButton>
       </div>
@@ -71,13 +71,12 @@
 
 <script setup lang="ts">
 /* Import */
-import { ApiTagContext, Feedback, GetConfigs, IsAnd, PostConfigs } from '@/types'
+import { ApiTagContext, GetConfigs, IsAnd, PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestGet, apiRequestPost } from '@/utils/apiRequest'
-import { setFeedback, vueComputedEmit } from '@/utils/functions'
+import { vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonCheckbox, IonContent, IonIcon, IonItem, IonList, IonModal, IonSearchbar, IonToggle } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
 import { computed, onMounted, ref } from 'vue'
-import FeedbackComponent from './FeedbackComponent.vue'
 
 /* Props */
 const props = defineProps<{
@@ -101,7 +100,7 @@ const all = ref<string[]>([])
 const changed = ref<boolean>(false)
 const modal = ref<InstanceType<typeof IonModal>>()
 const search = ref<string>('')
-const feedback = ref<Feedback>({ isValid: false, message: null })
+const toastRef = ref<ToastComponentRef>()
 
 /* Computed */
 const filtered = computed(() => all.value.filter((name) => name.toLowerCase().includes(search.value.toLowerCase())))
@@ -116,20 +115,17 @@ async function fetch(): Promise<void> {
   // If static then use staticFetch(), if not then call api
   if (props.static && props.staticFetch) {
     all.value = props.staticFetch()
-  } else {
-    const configs: GetConfigs = {
-      url: `auth/tag/${props.apiTagContext}/get`,
-
-      onSuccess: (result: string[]) => {
-        all.value = result
-        setFeedback(feedback, null)
-      },
-
-      onFail: (error: Error) => setFeedback(feedback, error.message),
-    }
-
-    await apiRequestGet(configs)
+    return
   }
+
+  const configs: GetConfigs = {
+    url: `auth/tag/${props.apiTagContext}/get`,
+
+    onSuccess: (result: string[]) => (all.value = result),
+    onFail: (error: Error) => toastRef.value?.openToast(error.message, 'error'),
+  }
+
+  await apiRequestGet(configs)
 }
 
 async function add(person: string): Promise<void> {
@@ -141,8 +137,7 @@ async function add(person: string): Promise<void> {
     onSuccess: () => fetch(),
 
     onFail: (error: Error) => {
-      setFeedback(feedback, error.message)
-      setTimeout(() => setFeedback(feedback, null), 2000)
+      toastRef.value?.openToast(error.message, 'error')
     },
   }
 

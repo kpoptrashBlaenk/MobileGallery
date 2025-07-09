@@ -8,7 +8,7 @@
     </IonHeader>
     <IonContent>
       <!-- Preview -->
-      <PreviewComponent ref="previewRef" :feedback="feedback" />
+      <PreviewComponent ref="previewRef" />
 
       <!-- Tag Buttons -->
       <div class="mt-3 flex items-center justify-center">
@@ -36,21 +36,21 @@
         <IonButton :disabled="loadingStore.loading" @click="upload()">Upload</IonButton>
       </div>
 
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
+      <!-- Toast -->
+      <ToastComponent ref="toastRef" />
     </IonContent>
   </IonPage>
 </template>
 
 <script setup lang="ts">
 /* Import */
-import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useLoadingStore } from '@/stores/loadingStore'
 import { useMediaStore } from '@/stores/mediaStore'
-import { Feedback, ModalOptions, PostConfigs, PreviewComponentRef } from '@/types'
+import { ModalOptions, PostConfigs, PreviewComponentRef, ToastComponentRef } from '@/types'
 import { apiRequestPostForm } from '@/utils/apiRequest'
-import { createSeasons, setFeedback } from '@/utils/functions'
+import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
 import PreviewComponent from './PreviewComponent.vue'
@@ -66,7 +66,7 @@ const selected = {
 const mediaStore = useMediaStore()
 
 /* Ref */
-const feedback = ref<Feedback>({ isValid: false, message: null })
+const toastRef = ref<ToastComponentRef>()
 const previewRef = ref<PreviewComponentRef>()
 const modalOptions = ref<ModalOptions[]>([
   {
@@ -108,13 +108,13 @@ async function upload(): Promise<void> {
     url: 'auth/media/upload',
 
     onSuccess: (result: string) => {
-      setFeedback(feedback, result, true)
+      toastRef.value?.openToast(result, 'success')
       mediaStore.startNeedToFetch()
       reset()
     },
 
     onFail: (error: Error) => {
-      setFeedback(feedback, error.message, false)
+      toastRef.value?.openToast(error.message, 'error')
     },
 
     body: () => {

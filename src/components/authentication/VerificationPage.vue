@@ -22,25 +22,24 @@
         />
       </div>
 
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
+      <!-- Toast -->
+      <ToastComponent ref="toastRef" />
     </IonContent>
   </IonPage>
 </template>
 
 <script setup lang="ts">
 /* Import */
-import { Feedback, PostConfigs } from '@/types'
+import { PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
-import { setFeedback } from '@/utils/functions'
 import { IonContent, IonPage } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
-import FeedbackComponent from '../partials/FeedbackComponent.vue'
+import ToastComponent from '../partials/ToastComponent.vue'
 
 /* Ref */
 const otps = ref<string[]>(['', '', '', '', '', ''])
 const inputs = ref<NodeListOf<HTMLInputElement>>()
-const feedback = ref<Feedback>({ isValid: false, message: null })
+const toastRef = ref<ToastComponentRef>()
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -80,12 +79,11 @@ async function verify(): Promise<void> {
     url: 'guest/auth/verify',
 
     onSuccess: () => {
-      setFeedback(feedback, null)
       location.reload()
     },
 
     onFail: (error: Error) => {
-      setFeedback(feedback, error.message)
+      toastRef.value?.openToast(error.message, 'error')
     },
 
     body: () => JSON.stringify({ token: otps.value.join('') }),

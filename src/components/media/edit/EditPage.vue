@@ -36,20 +36,20 @@
         <IonButton :disabled="loadingStore.loading" @click="update()">Save</IonButton>
       </div>
 
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
+      <!-- Toast -->
+      <ToastComponent ref="toastRef" />
     </IonContent>
   </IonPage>
 </template>
 
 <script setup lang="ts">
 /* Import */
-import FeedbackComponent from '@/components/partials/FeedbackComponent.vue'
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
+import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useLoadingStore } from '@/stores/loadingStore'
-import { DBMediaWithTagsAndPath, Feedback, ModalOptions, PostConfigs } from '@/types'
+import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
-import { createSeasons, setFeedback } from '@/utils/functions'
+import { createSeasons } from '@/utils/functions'
 import { IonButton, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
 
@@ -68,7 +68,7 @@ const selected = {
 const loadingStore = useLoadingStore()
 
 /* Ref */
-const feedback = ref<Feedback>({ isValid: false, message: null })
+const toastRef = ref<ToastComponentRef>()
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -107,10 +107,10 @@ async function update(): Promise<void> {
     url: 'auth/media/edit',
 
     onSuccess: async (result: string) => {
-      setFeedback(feedback, result, true)
+      toastRef.value?.openToast(result, 'success')
     },
 
-    onFail: (error: Error) => setFeedback(feedback, error.message, false),
+    onFail: (error: Error) => toastRef.value?.openToast(error.message, 'error'),
 
     body: () =>
       JSON.stringify({

@@ -1,4 +1,3 @@
-import { Feedback, FeedbackRef } from '@/types'
 import { computed } from 'vue'
 
 /**
@@ -17,18 +16,6 @@ export function isImage(data: string): boolean {
  */
 export function isVideo(data: string): boolean {
   return data.startsWith('data:video') || data.startsWith('video')
-}
-
-/**
- * Sets feedback ref values of type {@link Feedback}
- *
- * @param ref The feedback vue-ref
- * @param message The message to show or null to hide
- * @param isValid True for green and false for red
- */
-export function setFeedback(ref: FeedbackRef, message: string | null, isValid?: boolean): void {
-  if (typeof isValid !== 'undefined') ref.value.isValid = isValid
-  ref.value.message = message
 }
 
 /**

@@ -35,21 +35,19 @@
       <IonImg src="../../../../../public/placeholderImage.jpg" class="h-56" />
     </div>
   </div>
+
+  <ToastComponent ref="toastRef" />
 </template>
 
 <script setup lang="ts">
 /* Import */
-import { Feedback } from '@/types'
-import { isImage, isVideo, setFeedback, vueComputedEmit } from '@/utils/functions'
+import ToastComponent from '@/components/partials/ToastComponent.vue'
+import { ToastComponentRef } from '@/types'
+import { isImage, isVideo } from '@/utils/functions'
 import { FilePicker, PickedFile } from '@capawesome/capacitor-file-picker'
 import { IonButton, IonIcon, IonImg } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
 import { ref } from 'vue'
-
-/* Props */
-const props = defineProps<{
-  feedback: Feedback
-}>()
 
 /* Expose */
 defineExpose({
@@ -57,13 +55,10 @@ defineExpose({
   emptyMedia,
 })
 
-/* Emit */
-const emit = defineEmits(['update:feedback'])
-const feedback = vueComputedEmit(emit, props, 'feedback')
-const mediaFiles = ref<PickedFile[]>([])
-
 /* Ref */
+const mediaFiles = ref<PickedFile[]>([])
 const mediaUrls = ref<string[]>([])
+const toastRef = ref<ToastComponentRef>()
 
 /* DOM Manipulation */
 async function openGallery(): Promise<void> {
@@ -75,15 +70,12 @@ async function openGallery(): Promise<void> {
 }
 
 function previewMedia(): void {
-  // Remove error message
-  setFeedback(feedback, null)
-
   // Get files
   const files = mediaFiles.value
 
   // Check file
   if (!files || files.length === 0) {
-    setFeedback(feedback, 'Please select a media file', false)
+    toastRef.value?.openToast('Please select a media file.', 'error')
     return
   }
 
@@ -94,7 +86,7 @@ function previewMedia(): void {
       // Remove medias
       mediaFiles.value = []
 
-      setFeedback(feedback, 'Please select valid media files.', false)
+      toastRef.value?.openToast('Please select valid media files.', 'error')
       return
     }
   }

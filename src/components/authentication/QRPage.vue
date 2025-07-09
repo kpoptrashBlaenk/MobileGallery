@@ -15,8 +15,8 @@
 
       <div v-if="qrCode" class="text-center text-2xl">Scan to share!</div>
 
-      <!-- Feedback -->
-      <FeedbackComponent :is-valid="feedback.isValid" :message="feedback.message" />
+      <!-- Toast -->
+      <ToastComponent ref="toastRef" />
     </IonContent>
   </IonPage>
 </template>
@@ -24,19 +24,18 @@
 <script setup lang="ts">
 /* Import */
 import { useLoadingStore } from '@/stores/loadingStore'
-import { Feedback, GetConfigs } from '@/types'
+import { GetConfigs, ToastComponentRef } from '@/types'
 import { apiRequestGet } from '@/utils/apiRequest'
-import { setFeedback } from '@/utils/functions'
 import { IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
-import FeedbackComponent from '../partials/FeedbackComponent.vue'
+import ToastComponent from '../partials/ToastComponent.vue'
 
 /* Const */
 const loadingStore = useLoadingStore()
 
 /* Ref */
-const feedback = ref<Feedback>({ isValid: false, message: null })
 const qrCode = ref<string | null>(null)
+const toastRef = ref<ToastComponentRef>()
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -52,13 +51,13 @@ async function createQRCode(): Promise<void> {
       qrCode.value = result
     },
 
-    onFail: (error: Error) => setFeedback(feedback, error.message),
+    onFail: (error: Error) => toastRef.value?.openToast(error.message, 'error'),
   }
 
   loadingStore.start()
 
   await apiRequestGet(getConfigs)
-  
+
   loadingStore.stop()
 }
 </script>

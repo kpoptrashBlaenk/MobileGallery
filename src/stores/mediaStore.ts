@@ -19,6 +19,14 @@ export const useMediaStore = defineStore('medias', {
       this.medias = value
     },
 
+    updateMedia(id: number, people: string[], location: string, season: string, albums: string[]) {
+      const media = this.medias.find((media) => media.media_id === id)
+      media!.people = people.map((person) => ({ id: 99, name: person }))
+      media!.location_name = location
+      media!.season = season
+      media!.albums = albums.map((album) => ({ id: 99, name: album }))
+    },
+
     deleteMedia(id: number) {
       this.medias = this.medias.filter((media) => media.media_id !== id)
     },

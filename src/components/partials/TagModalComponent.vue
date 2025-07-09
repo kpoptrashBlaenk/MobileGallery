@@ -77,6 +77,7 @@ import { vueComputedEmit } from '@/utils/functions'
 import { IonButton, IonCheckbox, IonContent, IonIcon, IonItem, IonList, IonModal, IonSearchbar, IonToggle } from '@ionic/vue'
 import { closeOutline } from 'ionicons/icons'
 import { computed, onMounted, ref } from 'vue'
+import ToastComponent from './ToastComponent.vue'
 
 /* Props */
 const props = defineProps<{

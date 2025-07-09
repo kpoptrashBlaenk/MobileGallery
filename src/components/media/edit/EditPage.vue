@@ -47,6 +47,7 @@
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useLoadingStore } from '@/stores/loadingStore'
+import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
@@ -66,6 +67,7 @@ const selected = {
   albums: ref<string[]>(props.media.albums.map((album) => album.name)),
 }
 const loadingStore = useLoadingStore()
+const mediaStore = useMediaStore()
 
 /* Ref */
 const toastRef = ref<ToastComponentRef>()
@@ -108,6 +110,14 @@ async function update(): Promise<void> {
 
     onSuccess: async (result: string) => {
       toastRef.value?.openToast(result, 'success')
+      mediaStore.updateMedia(
+        props.media.media_id,
+        selected.people.value,
+        selected.location.value,
+        selected.season.value,
+        selected.albums.value,
+      )
+      mediaStore.startNeedToFetch()
     },
 
     onFail: (error: Error) => toastRef.value?.openToast(error.message, 'error'),

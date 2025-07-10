@@ -19,11 +19,10 @@
         :index="index"
         class="flex flex-col justify-center py-14"
       >
-        <IonImg
-          :src="media.media"
-          class="w-full transition-all duration-500 ease-in-out"
-          :class="showInfo ? 'h-3/5' : 'h-full'"
-        />
+        <div ref="imageRef" class="w-full transition-all duration-500 ease-in-out" :class="showInfo ? 'h-3/5' : 'h-full'">
+          <IonImg class="h-full" :src="media.media" />
+        </div>
+
         <InfoComponent :show-info="showInfo" :media="media" />
       </swiper-slide>
     </swiper-container>
@@ -73,7 +72,7 @@ import { createGesture, GestureDetail, IonButton, IonIcon, IonImg, IonModal, Ion
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import DeletePopoverComponent from '../delete/DeletePopoverComponent.vue'
 import EditPage from '../edit/EditPage.vue'
 import InfoComponent from '../info/InfoComponent.vue'
@@ -96,6 +95,18 @@ const swiper = ref<Swiper>()
 const toastRef = ref<ToastComponentRef>()
 const showInfo = ref<boolean>(false)
 const viewerRef = ref<HTMLDivElement>()
+const imageRef = ref<HTMLDivElement[]>()
+const zoomed = ref<boolean>(false)
+
+/* Watch */
+watch(zoomed, (zoomed: boolean) => {
+  if (zoomed) {
+    swiper.value?.disable()
+    return
+  }
+
+  swiper.value?.enable()
+})
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -117,28 +128,49 @@ onMounted(() => {
   })
 
   /* Info gesture */
-  const gesture = createGesture({
+  const infoGesture = createGesture({
     el: viewerRef.value as Node,
     gestureName: 'infoGesture',
     direction: 'y',
     threshold: 0,
-    onMove: (event: GestureDetail) => {
+    onMove: (detail: GestureDetail) => {
       if (!props.viewer.show) {
         return
       }
 
-      if (event.deltaY < -50 && event.velocityY < -0.8) {
+      if (detail.deltaY < -50 && detail.velocityY < -0.8) {
         showInfo.value = true
         return
       }
 
-      if (event.deltaY > 50 && event.velocityY > 0.8) {
+      if (detail.deltaY > 50 && detail.velocityY > 0.8) {
         showInfo.value = false
         return
       }
     },
   })
-  gesture.enable(true)
+  infoGesture.enable(true)
+
+  /* Zoom gesture */
+  const doubleClickThreshold = 500
+  let lastOnStart = 0 // For double click
+  const zoomGesture = createGesture({
+    el: imageRef.value![0] as Node,
+    gestureName: 'zoomGesture',
+    threshold: 0,
+    onStart: () => {
+      const now = Date.now()
+
+      if (Math.abs(now - lastOnStart) <= doubleClickThreshold) {
+        imageRef.value![0].style.scale = zoomed.value ? '1' : '2'
+        zoomed.value = !zoomed.value
+        return
+      }
+
+      lastOnStart = now
+    },
+  })
+  zoomGesture.enable(true)
 
   // Back Button
   handleBackButton(1, () => {

@@ -7,13 +7,27 @@
     <!-- Swiper -->
     <swiper-container
       ref="swiperContainer"
+      :zoom="true"
       :speed="250"
       :slides-per-view="1"
       class="h-full w-full"
       :initialSlide="mediaIndex"
       :class="{ 'opacity-0': viewer.animating }"
     >
-      <SlideComponent v-for="(media, index) in mediaStore.medias" :key="index" :media="media" :index="index" />
+      <swiper-slide v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="flex flex-col justify-center">
+        <div
+          ref="imageRef"
+          class="swiper-zoom-container w-full transition-all duration-500 ease-in-out"
+          :class="{
+            'h-3/5': showInfo,
+            'h-full': !showInfo,
+          }"
+        >
+          <IonImg class="swiper-zoom-target" :src="media.media" />
+        </div>
+
+        <InfoComponent :show-info="showInfo" :media="media" />
+      </swiper-slide>
     </swiper-container>
 
     <!-- Edit Modal -->
@@ -34,7 +48,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark" @click="slideStore.showInfo = !slideStore.showInfo">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="!swiperZoomed() ? showInfo = !showInfo : false">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="editModal?.$el.present()">
@@ -54,18 +68,17 @@
 /* Import */
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useMediaStore } from '@/stores/mediaStore'
-import { useSlideStore } from '@/stores/slideStore'
 import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
-import { IonButton, IonIcon, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
+import { createGesture, GestureDetail, IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
-import { onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import DeletePopoverComponent from '../delete/DeletePopoverComponent.vue'
 import EditPage from '../edit/EditPage.vue'
-import SlideComponent from './SlideComponent.vue'
+import InfoComponent from '../info/InfoComponent.vue'
 
 /* Props */
 const props = defineProps<{
@@ -75,7 +88,6 @@ const props = defineProps<{
 
 /* Const */
 const mediaStore = useMediaStore()
-const slideStore = useSlideStore()
 
 /* Ref */
 const media = ref<DBMediaWithTagsAndPath>(mediaStore.getMediaByIndex(props.mediaIndex))
@@ -85,15 +97,7 @@ const swiperContainer = ref<SwiperContainer>()
 const swiper = ref<Swiper>()
 const toastRef = ref<ToastComponentRef>()
 const viewerRef = ref<HTMLDivElement>()
-
-/* Watch */
-watchEffect(() => {
-  if (slideStore.swiperEnabled) {
-    swiper.value?.enable()
-  } else {
-    swiper.value?.disable()
-  }
-})
+const showInfo = ref<boolean>(false)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
@@ -114,8 +118,57 @@ onMounted(() => {
     media.value = mediaStore.getMediaByIndex(getActiveSlideIndex())
   })
 
+  // Enable/disable slide change when zoomed out/in
+  swiper.value?.on('zoomChange', (event) => {
+    swiperZoomed() ? (event.allowTouchMove = true) : (event.allowTouchMove = false)
+  })
+
+  // Info Gesture
+  let startY = 0
+  const infoGesture = createGesture({
+    el: viewerRef.value as Node,
+    gestureName: 'infoGesture',
+    direction: 'y',
+    threshold: 0,
+
+    canStart: () => !swiperZoomed(),
+
+    onStart: (detail: GestureDetail) => {
+      startY = detail.currentY
+    },
+
+    onMove: (detail: GestureDetail) => {
+      // Swipe
+      const deltaY = detail.currentY - detail.startY
+      const velocityY = detail.velocityY
+
+      // Swipe up to show info
+      if (deltaY < -50 && velocityY < -0.8) {
+        showInfo.value = true
+        swiper.value?.zoom.disable()
+      }
+
+      // Swipe down to hide info
+      if (deltaY > 50 && velocityY > 0.8) {
+        showInfo.value = false
+        swiper.value?.zoom.enable()
+      }
+    },
+  })
+  infoGesture.enable(true)
+
   // Back Button
   handleBackButton(1, () => {
+    if (showInfo.value) {
+      showInfo.value = false
+      return
+    }
+
+    if (swiperZoomed()) {
+      swiper.value?.zoom.out()
+      return
+    }
+
     if (props.viewer.show) closeViewer()
   })
 })
@@ -211,5 +264,9 @@ async function downloadMedia(): Promise<void> {
     // Error toast
     toastRef.value?.openToast(error.message, 'error')
   }
+}
+
+function swiperZoomed(): boolean {
+  return swiper.value!.zoom.scale > 1
 }
 </script>

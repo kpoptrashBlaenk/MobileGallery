@@ -21,7 +21,7 @@
 /* Import */
 import { useSlideStore } from '@/stores/slideStore'
 import { DBMediaWithTagsAndPath } from '@/types'
-import { createGesture, IonImg } from '@ionic/vue'
+import { createGesture, GestureDetail, IonImg } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
 import InfoComponent from '../info/InfoComponent.vue'
 
@@ -42,26 +42,36 @@ const panY = ref<number>(0)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
-  const animationDuration = 500
+  // For double click
   const doubleClickThreshold = 500
   let lastTap = 0
+  let lastTapX = 0
+  let lastTapY = 0
+
+  // For zoom animation
+  const animationDuration = 500
   let animating = false
+
+  // For swiping
   let startX = 0
   let startY = 0
 
   const imageGesture = createGesture({
     el: imageRef.value as Node,
     gestureName: 'imageGesture',
-    direction: 'y',
     threshold: 0,
 
     canStart: () => !animating,
 
-    onStart: () => {
+    onStart: (detail: GestureDetail) => {
       if (!slideStore.showInfo) {
         // Double Tap
         const now = Date.now()
-        if (Math.abs(now - lastTap) <= doubleClickThreshold) {
+        if (
+          Math.abs(now - lastTap) <= doubleClickThreshold &&
+          Math.abs(lastTapX - detail.currentX) < 10 &&
+          Math.abs(lastTapY - detail.currentY) < 10
+        ) {
           if (slideStore.zoomed) cssAnimation.value = true // Add css before zoom out
           imageRef.value.style.scale = slideStore.zoomed ? '1' : '2' // Zoom out/in
           slideStore.zoomed = !slideStore.zoomed
@@ -75,14 +85,18 @@ onMounted(() => {
             if (slideStore.zoomed) cssAnimation.value = false // Remove css after zoom in
           }, animationDuration)
         }
+
+        // Save last tap
         lastTap = now
+        lastTapX = detail.currentX
+        lastTapY = detail.currentY
 
         startX = panX.value
         startY = panY.value
       }
     },
 
-    onMove: (detail) => {
+    onMove: (detail: GestureDetail) => {
       if (!slideStore.zoomed) {
         // Swipe
         const deltaY = detail.currentY - detail.startY

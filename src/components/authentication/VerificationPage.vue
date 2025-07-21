@@ -8,6 +8,7 @@
 
       <!-- Input Grid -->
       <div class="mx-4 mt-8 grid grid-cols-6 gap-1">
+        <ion-input-otp></ion-input-otp>
         <input
           v-for="(otp, index) in otps"
           class="h-15 rounded-xl border-1 border-gray-300 text-center text-3xl font-semibold transition-all duration-150 outline-none focus:border-blue-500"
@@ -32,7 +33,7 @@
 /* Import */
 import { PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
-import { IonContent, IonPage } from '@ionic/vue'
+import { IonContent, IonPage, IonInputOtp  } from '@ionic/vue'
 import { onMounted, ref } from 'vue'
 import ToastComponent from '../partials/ToastComponent.vue'
 
@@ -93,3 +94,4 @@ async function verify(): Promise<void> {
   await apiRequestPost(postConfigs)
 }
 </script>
+npm

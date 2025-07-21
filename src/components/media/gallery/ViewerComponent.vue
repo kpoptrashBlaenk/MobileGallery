@@ -58,7 +58,7 @@ import { useSlideStore } from '@/stores/slideStore'
 import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
-import { createGesture, GestureDetail, IonButton, IonIcon, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
+import { IonButton, IonIcon, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
@@ -113,30 +113,6 @@ onMounted(() => {
   swiper.value?.on('slideChange', () => {
     media.value = mediaStore.getMediaByIndex(getActiveSlideIndex())
   })
-
-  /* Info gesture */
-  const infoGesture = createGesture({
-    el: viewerRef.value as Node,
-    gestureName: 'infoGesture',
-    direction: 'y',
-    threshold: 0,
-    onMove: (detail: GestureDetail) => {
-      if (!props.viewer.show) {
-        return
-      }
-
-      if (detail.deltaY < -50 && detail.velocityY < -0.8) {
-        slideStore.startShowInfo()
-        return
-      }
-
-      if (detail.deltaY > 50 && detail.velocityY > 0.8) {
-        slideStore.stopShowInfo()
-        return
-      }
-    },
-  })
-  infoGesture.enable(true)
 
   // Back Button
   handleBackButton(1, () => {

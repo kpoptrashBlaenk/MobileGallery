@@ -30,26 +30,58 @@ const imageRef = ref()
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
-  /* Zoom gesture */
+  const animationDuration = 500
   const doubleClickThreshold = 500
-  let lastOnStart = 0 // For double click
-  const zoomGesture = createGesture({
+  let lastTap = 0
+  let startY = 0
+  let animating = false
+
+  const imageGesture = createGesture({
     el: imageRef.value as Node,
-    gestureName: 'zoomGesture',
+    gestureName: 'imageGesture',
+    direction: 'y',
     threshold: 0,
-    onStart: () => {
-      const now = Date.now()
 
-      if (Math.abs(now - lastOnStart) <= doubleClickThreshold) {
-        imageRef.value.style.scale = slideStore.zoomed ? '1' : '2'
-        slideStore.zoomed = !slideStore.zoomed
-        slideStore.swiperEnabled = !slideStore.zoomed
-        return
+    onStart: (detail) => {
+      if (!animating) {
+        // Double Tap
+        const now = Date.now()
+        if (Math.abs(now - lastTap) <= doubleClickThreshold) {
+          imageRef.value.style.scale = slideStore.zoomed ? '1' : '2'
+          slideStore.zoomed = !slideStore.zoomed
+          slideStore.swiperEnabled = !slideStore.zoomed
+          animating = true
+          setTimeout(() => (animating = false), animationDuration)
+        }
+        lastTap = now
+
+        // Save starting Y
+        startY = detail.currentY
       }
+    },
 
-      lastOnStart = now
+    onMove: (detail) => {
+      if (!animating) {
+        const deltaY = detail.currentY - startY
+        const velocityY = detail.velocityY
+
+        // Swipe up to show info
+        if (deltaY < -50 && velocityY < -0.8 && !slideStore.showInfo) {
+          slideStore.startShowInfo()
+          animating = true
+          setTimeout(() => (animating = false), animationDuration)
+        }
+
+        // Swipe down to hide info
+        if (deltaY > 50 && velocityY > 0.8 && !slideStore.showInfo) {
+          slideStore.stopShowInfo()
+          animating = true
+          setTimeout(() => (animating = false), animationDuration)
+        }
+      }
     },
   })
-  zoomGesture.enable(true)
+
+  imageGesture.enable(true)
 })
 </script>

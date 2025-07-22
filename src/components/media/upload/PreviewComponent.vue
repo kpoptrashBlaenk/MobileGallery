@@ -75,7 +75,6 @@ function previewMedia(): void {
 
   // Check file
   if (!files || files.length === 0) {
-    toastRef.value?.openToast('Please select a media file.', 'error')
     return
   }
 

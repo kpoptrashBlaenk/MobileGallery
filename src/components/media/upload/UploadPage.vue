@@ -35,6 +35,9 @@
       <div class="mt-5 flex justify-center">
         <IonButton :disabled="loadingStore.loading" @click="upload()">Upload</IonButton>
       </div>
+      <div v-if="loadingStore.loading" class="mx-5 mt-5">
+        <IonProgressBar :buffer="uploadProgress + 0.06" :value="uploadProgress"></IonProgressBar>
+      </div>
 
       <!-- Toast -->
       <ToastComponent ref="toastRef" />
@@ -68,6 +71,7 @@ const mediaStore = useMediaStore()
 /* Ref */
 const toastRef = ref<ToastComponentRef>()
 const previewRef = ref<PreviewComponentRef>()
+const uploadProgress = ref<number>(0)
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -115,6 +119,10 @@ async function upload(): Promise<void> {
 
     onFail: (error: Error) => {
       toastRef.value?.openToast(error.message, 'error')
+    },
+
+    onProgress: (percent: number) => {
+      uploadProgress.value = percent/100
     },
 
     body: () => {

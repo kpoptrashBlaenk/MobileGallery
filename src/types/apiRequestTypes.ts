@@ -7,4 +7,5 @@ export interface GetConfigs {
 export interface PostConfigs extends GetConfigs {
   body: () => string | FormData
   checks?: () => void
+  onProgress?: (percent: number) => void
 }

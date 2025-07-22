@@ -23,7 +23,7 @@
             'h-full': !showInfo,
           }"
         >
-          <IonImg class="swiper-zoom-target" :src="media.media" />
+          <IonImg class="swiper-zoom-target w-full" :src="media.media" />
         </div>
 
         <InfoComponent :show-info="showInfo" :media="media" />
@@ -48,7 +48,7 @@
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
       </IonButton>
-      <IonButton fill="clear" shape="round" size="large" color="dark" @click="!swiperZoomed() ? showInfo = !showInfo : false">
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="!swiperZoomed() ? (showInfo = !showInfo) : false">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="editModal?.$el.present()">
@@ -102,7 +102,7 @@ const showInfo = ref<boolean>(false)
 /* Mounted Lifecycle Hook */
 onMounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
-  ionTabBar[1]!.style.display = 'none'
+  ionTabBar[1]!.classList.add('opacity-0')
 
   // Scroll into view when it's not in the grid anymore
   swiperContainer.value?.addEventListener('swiperslidechange', () => {
@@ -176,7 +176,7 @@ onMounted(() => {
 /* Unmounted Lifecycle Hook */
 onUnmounted(() => {
   const ionTabBar = document.querySelectorAll('ion-tab-bar')
-  ionTabBar[1]!.style.display = 'block'
+  ionTabBar[1]!.classList.remove('opacity-0')
 })
 
 /* DOM Manipulation */
@@ -211,9 +211,6 @@ function closeViewer(): void {
   cloneImage.style.left = `${originalRect.x}px`
   cloneImage.style.height = `${originalRect.height}px`
   cloneImage.style.width = `${originalRect.width}px`
-  cloneImage.style.transition = 'all 300ms ease-in-out'
-
-  // Place clone on top of original image
   cloneImage.style.transition = 'all 300ms ease-in-out'
 
   // Get position and size of image in grid

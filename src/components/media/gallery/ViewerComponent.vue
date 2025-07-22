@@ -4,13 +4,19 @@
     class="fixed top-0 h-screen w-screen bg-white opacity-0 transition-opacity duration-1000"
     :class="{ 'opacity-100': viewer.show }"
   >
+    <IonHeader>
+      <IonToolbar>
+        <IonTitle class="ms-2">Gallery</IonTitle>
+      </IonToolbar>
+    </IonHeader>
+
     <!-- Swiper -->
     <swiper-container
       ref="swiperContainer"
       :zoom="true"
       :speed="250"
       :slides-per-view="1"
-      class="h-full w-full"
+      class="h-full w-full pb-27.75"
       :initialSlide="mediaIndex"
       :class="{ 'opacity-0': viewer.animating }"
     >
@@ -23,7 +29,7 @@
             'h-full': !showInfo,
           }"
         >
-          <IonImg class="swiper-zoom-target w-full" :src="media.media" />
+          <IonImg class="swiper-zoom-target h-full w-full" :src="media.media" />
         </div>
 
         <InfoComponent :show-info="showInfo" :media="media" />
@@ -44,7 +50,7 @@
     <ToastComponent ref="toastRef" />
 
     <!-- TabBar -->
-    <IonTabBar id="tabBar" slot="bottom" class="absolute bottom-0 z-50 w-full gap-5 border-t-1 border-gray-200 bg-white">
+    <IonTabBar id="tabBar" slot="bottom" class="absolute bottom-0 w-full gap-5 border-t-1 border-gray-200 bg-white">
       <IonButton fill="clear" shape="round" size="large" color="dark">
         <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
       </IonButton>
@@ -71,11 +77,24 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
-import { createGesture, GestureDetail, IonButton, IonIcon, IonImg, IonModal, IonPopover, IonTabBar } from '@ionic/vue'
+import {
+  createGesture,
+  GestureDetail,
+  IonButton,
+  IonHeader,
+  IonIcon,
+  IonImg,
+  IonModal,
+  IonPopover,
+  IonTabBar,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/vue'
 import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted, ref } from 'vue'
+import { calculateViewerSize } from '../../../utils/functions'
 import DeletePopoverComponent from '../delete/DeletePopoverComponent.vue'
 import EditPage from '../edit/EditPage.vue'
 import InfoComponent from '../info/InfoComponent.vue'
@@ -101,8 +120,8 @@ const showInfo = ref<boolean>(false)
 
 /* Mounted Lifecycle Hook */
 onMounted(() => {
-  const ionTabBar = document.querySelectorAll('ion-tab-bar')
-  ionTabBar[1]!.classList.add('opacity-0')
+  const ionTabBar = document.querySelectorAll('ion-tab-bar')[1]
+  ionTabBar.classList.add('opacity-0', 'pointer-events-none')
 
   // Scroll into view when it's not in the grid anymore
   swiperContainer.value?.addEventListener('swiperslidechange', () => {
@@ -124,7 +143,6 @@ onMounted(() => {
   })
 
   // Info Gesture
-  let startY = 0
   const infoGesture = createGesture({
     el: viewerRef.value as Node,
     gestureName: 'infoGesture',
@@ -132,10 +150,6 @@ onMounted(() => {
     threshold: 0,
 
     canStart: () => !swiperZoomed(),
-
-    onStart: (detail: GestureDetail) => {
-      startY = detail.currentY
-    },
 
     onMove: (detail: GestureDetail) => {
       // Swipe
@@ -175,8 +189,8 @@ onMounted(() => {
 
 /* Unmounted Lifecycle Hook */
 onUnmounted(() => {
-  const ionTabBar = document.querySelectorAll('ion-tab-bar')
-  ionTabBar[1]!.classList.remove('opacity-0')
+  const ionTabBar = document.querySelectorAll('ion-tab-bar')[1]
+  ionTabBar.classList.remove('opacity-0', 'pointer-events-none')
 })
 
 /* DOM Manipulation */
@@ -200,17 +214,17 @@ function closeViewer(): void {
   cloneImage.classList.add('block', 'absolute', 'object-cover')
 
   // Append clone
-  const page = document.querySelector('.ion-page') as HTMLDivElement
+  const page = document.querySelector('#galleryPage') as HTMLDivElement
   page.append(cloneImage)
 
   // Get original position and size
-  const originalRect = imageElement.getBoundingClientRect()
+  const originalRect = calculateViewerSize(imageElement)
 
   // Place clone on top of original image
   cloneImage.style.top = `${originalRect.y}px`
   cloneImage.style.left = `${originalRect.x}px`
-  cloneImage.style.height = `${originalRect.height}px`
   cloneImage.style.width = `${originalRect.width}px`
+  cloneImage.style.height = `${originalRect.height}px`
   cloneImage.style.transition = 'all 300ms ease-in-out'
 
   // Get position and size of image in grid

@@ -1,6 +1,6 @@
 <template>
-  <IonPage>
-    <IonHeader>
+  <IonPage id="galleryPage">
+    <IonHeader class="z-2">
       <IonToolbar>
         <IonTitle class="ms-2">Gallery</IonTitle>
         <IonProgressBar v-if="loadingStore.loading" type="indeterminate"></IonProgressBar>

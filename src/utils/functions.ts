@@ -20,7 +20,7 @@ export function isVideo(data: string): boolean {
 
 /**
  * Removes the unique beginning of a medianame
- * 
+ *
  * @param name Name of the media to format
  */
 export function formatMediaName(name: string): string {
@@ -81,4 +81,31 @@ export function handleBackButton(priority: number, callback: () => void): void {
       callback()
     })
   })
+}
+
+/**
+ * Calculate the size and position of a media in the viewr
+ *
+ * @param mediaElement The media element to measure final size and position
+ */
+export function calculateViewerSize(mediaElement: HTMLImageElement): { x: number; y: number; width: number; height: number } {
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+
+  const naturalAspectRatio = mediaElement.naturalWidth / mediaElement.naturalHeight
+
+  const contentRect = document.querySelector('ion-content')?.getBoundingClientRect() as DOMRect
+
+  let finalWidth = viewportWidth
+  let finalHeight = finalWidth / naturalAspectRatio
+
+  if (finalHeight > contentRect.height) {
+    finalHeight = contentRect.height
+    finalWidth = finalHeight * naturalAspectRatio
+  }
+
+  const finalLeft = (viewportWidth - finalWidth) / 2
+  const finalTop = (viewportHeight - finalHeight) / 2
+
+  return { x: finalLeft, y: finalTop, width: finalWidth, height: finalHeight }
 }

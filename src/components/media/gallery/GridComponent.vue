@@ -23,6 +23,7 @@ import { Viewer } from '@/types'
 import { IonImg } from '@ionic/vue'
 import { ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
+import { calculateViewerSize } from '@/utils/functions'
 
 /* Const */
 const mediaStore = useMediaStore()
@@ -47,11 +48,10 @@ function openViewer(event: CustomEvent, index: number): void {
   const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
 
   // Set classes
-  cloneImage.classList.remove('object-cover')
-  cloneImage.classList.add('max-w-full', 'max-h-full', 'object-contain', 'block', 'mx-auto', 'my-auto', 'absolute')
+  cloneImage.classList.add('max-w-full', 'max-h-full', 'object-cover', 'block', 'mx-auto', 'my-auto', 'absolute', 'z-6')
 
   // Append clone
-  const page = document.querySelector('.ion-page') as HTMLDivElement
+  const page = document.querySelector('#galleryPage') as HTMLDivElement
   page.append(cloneImage)
 
   // Get original position and size
@@ -65,28 +65,14 @@ function openViewer(event: CustomEvent, index: number): void {
   cloneImage.style.transition = 'all 300ms ease-in-out'
 
   // Calculate new position and size
-  const viewportWidth = window.innerWidth
-  const viewportHeight = window.innerHeight
-
-  const naturalAspectRatio = imageElement.naturalWidth / imageElement.naturalHeight
-
-  let finalWidth = viewportWidth
-  let finalHeight = finalWidth / naturalAspectRatio
-
-  if (finalHeight > viewportHeight) {
-    finalHeight = viewportHeight
-    finalWidth = finalHeight * naturalAspectRatio
-  }
-
-  const finalLeft = (viewportWidth - finalWidth) / 2
-  const finalTop = (viewportHeight - finalHeight) / 2
+const finalRect = calculateViewerSize(imageElement)
 
   // Animate
   requestAnimationFrame(() => {
-    cloneImage.style.top = `${finalTop}px`
-    cloneImage.style.left = `${finalLeft}px`
-    cloneImage.style.width = `${finalWidth}px`
-    cloneImage.style.height = `${finalHeight}px`
+    cloneImage.style.top = `${finalRect.y}px`
+    cloneImage.style.left = `${finalRect.x}px`
+    cloneImage.style.width = `${finalRect.width}px`
+    cloneImage.style.height = `${finalRect.height}px`
   })
 
   // Animation callback

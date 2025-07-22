@@ -135,6 +135,10 @@ export async function uploadMediaRoute(req: Request, res: Response) {
     return
   } catch (error) {
     console.error(error)
+    // Delete medias on error
+    medias.forEach((media) => {
+      fs.unlink(media.path, () => {})
+    })
     res.status(500).json('Error uploading medias.')
     return
   }

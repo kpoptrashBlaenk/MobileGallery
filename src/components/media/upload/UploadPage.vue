@@ -7,6 +7,19 @@
       </IonToolbar>
     </IonHeader>
     <IonContent>
+      <!-- Refresher -->
+      <IonRefresher
+        slot="fixed"
+        @ion-refresh="
+          (event) => {
+            reset()
+            shortRefresh(event)
+          }
+        "
+      >
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
+
       <!-- Preview -->
       <PreviewComponent ref="previewRef" />
 
@@ -54,7 +67,17 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { ModalOptions, PostConfigs, PreviewComponentRef, ToastComponentRef } from '@/types'
 import { apiRequestPostForm } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonProgressBar,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/vue'
 import { ref } from 'vue'
 import PreviewComponent from './PreviewComponent.vue'
 
@@ -122,7 +145,7 @@ async function upload(): Promise<void> {
     },
 
     onProgress: (percent: number) => {
-      uploadProgress.value = percent/100
+      uploadProgress.value = percent / 100
     },
 
     body: () => {
@@ -169,6 +192,10 @@ function reset(): void {
   selected.location.value = ''
   selected.season.value = ''
   selected.albums.value = []
+}
+
+function shortRefresh(event: CustomEvent): void {
+  setTimeout(() => event.detail.complete(), 100)
 }
 </script>
 

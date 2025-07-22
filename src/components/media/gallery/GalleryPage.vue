@@ -8,6 +8,11 @@
     </IonHeader>
 
     <IonContent :force-overscroll="false">
+      <!-- Refresher -->
+      <IonRefresher ref="refresherRef" slot="fixed" @ion-refresh="initMedias()">
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
+
       <!-- Filter Modal Buttons -->
       <div class="mx-1 mt-3 flex items-center justify-center">
         <div class="grid grid-cols-4 gap-1">
@@ -50,7 +55,17 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonProgressBar,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/vue'
 import { onMounted, ref, watch } from 'vue'
 import GridComponent from './GridComponent.vue'
 
@@ -70,6 +85,7 @@ const mediaStore = useMediaStore()
 
 /* Ref */
 const initialized = ref<boolean>(false)
+const refresherRef = ref()
 const modalOptions = ref<ModalOptions[]>([
   {
     tagContext: 'people',
@@ -151,6 +167,7 @@ async function getMedias(): Promise<void> {
   await apiRequestPost(postConfigs)
 
   initialized.value = true
+  refresherRef.value?.$el.complete()
   loadingStore.stop()
 }
 

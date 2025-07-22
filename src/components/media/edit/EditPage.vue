@@ -8,10 +8,12 @@
     </IonHeader>
     <IonContent>
       <!-- Preview -->
-      <IonImg :src="media.media" />
+      <div class="flex h-[70vh] justify-center">
+        <img class="object-contain" :src="media.media" />
+      </div>
 
       <!-- Tag Buttons -->
-      <div class="mt-3 flex items-center justify-center">
+      <div class="mt-5 flex items-center justify-center">
         <div class="grid grid-cols-2 gap-1">
           <IonButton v-for="(modalOption, index) in modalOptions" :key="index" :id="`open-${modalOption.tagContext}-modal`">{{
             modalOption.tagContext
@@ -51,7 +53,7 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs, ToastComponentRef } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
-import { IonButton, IonContent, IonHeader, IonImg, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
+import { IonButton, IonContent, IonHeader, IonPage, IonProgressBar, IonTitle, IonToolbar } from '@ionic/vue'
 import { ref } from 'vue'
 
 /* Props */

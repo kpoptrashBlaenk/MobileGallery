@@ -16,6 +16,7 @@
             :key="index"
             :id="`open-${modalOption.tagContext}-filter-modal`"
             size="small"
+            :fill="modalOption.selected.length === 0 ? 'outline' : 'solid'"
             >{{ modalOption.tagContext }}</IonButton
           >
         </div>

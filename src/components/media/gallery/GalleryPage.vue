@@ -9,7 +9,7 @@
 
     <IonContent :force-overscroll="false">
       <!-- Refresher -->
-      <IonRefresher ref="refresherRef" slot="fixed" @ion-refresh="initMedias()">
+      <IonRefresher v-if="!viewerStore.show" ref="refresherRef" slot="fixed" @ion-refresh="initMedias()">
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
 
@@ -52,6 +52,7 @@
 import TagModalComponent from '@/components/partials/TagModalComponent.vue'
 import { useLoadingStore } from '@/stores/loadingStore'
 import { useMediaStore } from '@/stores/mediaStore'
+import { useViewerStore } from '@/stores/viewerStore'
 import { DBMediaWithTagsAndPath, ModalOptions, PostConfigs } from '@/types'
 import { apiRequestPost } from '@/utils/apiRequest'
 import { createSeasons } from '@/utils/functions'
@@ -82,6 +83,7 @@ const isAnd = {
 }
 const loadingStore = useLoadingStore()
 const mediaStore = useMediaStore()
+const viewerStore = useViewerStore()
 
 /* Ref */
 const initialized = ref<boolean>(false)

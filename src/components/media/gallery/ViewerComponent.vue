@@ -2,7 +2,7 @@
   <div
     ref="viewerRef"
     class="fixed top-0 h-screen w-screen bg-white opacity-0 transition-opacity duration-1000"
-    :class="{ 'opacity-100': viewer.show }"
+    :class="{ 'opacity-100': viewerStore.show }"
   >
     <IonHeader>
       <IonToolbar>
@@ -18,7 +18,7 @@
       :slides-per-view="1"
       class="h-full w-full pb-27.75"
       :initialSlide="mediaIndex"
-      :class="{ 'opacity-0': viewer.animating }"
+      :class="{ 'opacity-0': viewerStore.animating }"
     >
       <swiper-slide v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="flex flex-col justify-center">
         <div
@@ -74,7 +74,8 @@
 /* Import */
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useMediaStore } from '@/stores/mediaStore'
-import { DBMediaWithTagsAndPath, ToastComponentRef, Viewer } from '@/types'
+import { useViewerStore } from '@/stores/viewerStore'
+import { DBMediaWithTagsAndPath, ToastComponentRef } from '@/types'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
 import {
@@ -102,11 +103,11 @@ import InfoComponent from '../info/InfoComponent.vue'
 /* Props */
 const props = defineProps<{
   mediaIndex: number
-  viewer: Viewer
 }>()
 
 /* Const */
 const mediaStore = useMediaStore()
+const viewerStore = useViewerStore()
 
 /* Ref */
 const media = ref<DBMediaWithTagsAndPath>(mediaStore.getMediaByIndex(props.mediaIndex))
@@ -183,7 +184,7 @@ onMounted(() => {
       return
     }
 
-    if (props.viewer.show) closeViewer()
+    if (viewerStore.show) closeViewer()
   })
 })
 
@@ -196,7 +197,7 @@ onUnmounted(() => {
 /* DOM Manipulation */
 function closeViewer(): void {
   if (mediaStore.medias.length === 0) {
-    props.viewer.show = false
+    viewerStore.stopShow()
     return
   }
 
@@ -207,8 +208,8 @@ function closeViewer(): void {
   const cloneImage = imageElement.cloneNode(true) as HTMLImageElement
 
   // Close viewer
-  props.viewer.show = false
-  props.viewer.animating = true
+  viewerStore.stopShow()
+  viewerStore.startAnimating()
 
   // Set classes
   cloneImage.classList.add('block', 'absolute', 'object-cover')
@@ -244,7 +245,7 @@ function closeViewer(): void {
     'transitionend',
     () => {
       // Remove
-      props.viewer.animating = false
+      viewerStore.stopAnimating()
       cloneImage.remove()
 
       // Trigger fetch if edited

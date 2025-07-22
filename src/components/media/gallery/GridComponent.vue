@@ -1,7 +1,7 @@
 <template>
   <!-- Viewer Layer -->
   <Transition name="fade">
-    <ViewerComponent v-if="viewer.show" :mediaIndex="mediaIndex" :viewer="viewer" />
+    <ViewerComponent v-if="viewerStore.show" :mediaIndex="mediaIndex" />
   </Transition>
 
   <!-- Gallery Grid -->
@@ -19,27 +19,24 @@
 <script setup lang="ts">
 /* Import */
 import { useMediaStore } from '@/stores/mediaStore'
-import { Viewer } from '@/types'
+import { useViewerStore } from '@/stores/viewerStore'
+import { calculateViewerSize } from '@/utils/functions'
 import { IonImg } from '@ionic/vue'
 import { ref } from 'vue'
 import ViewerComponent from './ViewerComponent.vue'
-import { calculateViewerSize } from '@/utils/functions'
 
 /* Const */
 const mediaStore = useMediaStore()
+const viewerStore = useViewerStore()
 
 /* Ref */
 const mediaIndex = ref<number>(0)
-const viewer = ref<Viewer>({
-  animating: false,
-  show: false,
-})
 
 /* DOM Manipulation */
 function openViewer(event: CustomEvent, index: number): void {
   // Open viewer
-  viewer.value.show = true
-  viewer.value.animating = true
+  viewerStore.startShow()
+  viewerStore.startAnimating()
   mediaIndex.value = index
 
   // Copy image (not ion image because custom elements are different)
@@ -65,7 +62,7 @@ function openViewer(event: CustomEvent, index: number): void {
   cloneImage.style.transition = 'all 300ms ease-in-out'
 
   // Calculate new position and size
-const finalRect = calculateViewerSize(imageElement)
+  const finalRect = calculateViewerSize(imageElement)
 
   // Animate
   requestAnimationFrame(() => {
@@ -80,7 +77,7 @@ const finalRect = calculateViewerSize(imageElement)
     'transitionend',
     () => {
       // Remove
-      viewer.value.animating = false
+      viewerStore.stopAnimating()
       setTimeout(() => cloneImage.remove(), 100) // Delay so swiper has time to initialize
     },
     { once: true },

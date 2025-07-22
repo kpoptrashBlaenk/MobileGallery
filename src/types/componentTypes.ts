@@ -1,7 +1,7 @@
 import PreviewComponent from '@/components/media/upload/PreviewComponent.vue'
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { PickedFile } from '@capawesome/capacitor-file-picker'
-import { ToastTypes } from './viewTypes'
+import { ToastTypes } from '.'
 
 export interface PreviewComponentRef extends InstanceType<typeof PreviewComponent> {
   getMedia: () => PickedFile[]

@@ -22,7 +22,6 @@
     >
       <swiper-slide v-for="(media, index) in mediaStore.medias" :key="index" :index="index" class="flex flex-col justify-center">
         <div
-          ref="imageRef"
           class="swiper-zoom-container w-full transition-all duration-500 ease-in-out"
           :class="{
             'h-3/5': showInfo,
@@ -51,8 +50,8 @@
 
     <!-- TabBar -->
     <IonTabBar id="tabBar" slot="bottom" class="absolute bottom-0 w-full gap-5 border-t-1 border-gray-200 bg-white">
-      <IonButton fill="clear" shape="round" size="large" color="dark">
-        <IonIcon :icon="syncOutline" slot="icon-only"></IonIcon>
+      <IonButton fill="clear" shape="round" size="large" color="dark" @click="shareMedia()">
+        <IonIcon :icon="shareSocialOutline" slot="icon-only"></IonIcon>
       </IonButton>
       <IonButton fill="clear" shape="round" size="large" color="dark" @click="!swiperZoomed() ? (showInfo = !showInfo) : false">
         <IonIcon :icon="informationCircleOutline" slot="icon-only"></IonIcon>
@@ -75,7 +74,8 @@
 import ToastComponent from '@/components/partials/ToastComponent.vue'
 import { useMediaStore } from '@/stores/mediaStore'
 import { useViewerStore } from '@/stores/viewerStore'
-import { DBMediaWithTagsAndPath, ToastComponentRef } from '@/types'
+import { DBMediaWithTagsAndPath, PostConfigs, ToastComponentRef } from '@/types'
+import { apiRequestPost } from '@/utils/apiRequest'
 import { formatMediaName, handleBackButton } from '@/utils/functions'
 import { FileTransfer } from '@capacitor/file-transfer'
 import {
@@ -91,7 +91,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/vue'
-import { downloadOutline, informationCircleOutline, pencilOutline, syncOutline, trashOutline } from 'ionicons/icons'
+import { downloadOutline, informationCircleOutline, pencilOutline, shareSocialOutline, trashOutline } from 'ionicons/icons'
 import { SwiperContainer } from 'swiper/element'
 import { Swiper } from 'swiper/types'
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -253,6 +253,26 @@ function closeViewer(): void {
     },
     { once: true },
   )
+}
+
+/* API Calls */
+async function shareMedia(): Promise<void> {
+  const postConfigs: PostConfigs = {
+    url: 'auth/auth/share',
+
+    onSuccess: (result) => {
+      // TODO Phone sharing
+    },
+
+    onFail: (error: Error) => {
+      toastRef.value?.openToast(error.message, 'error')
+    },
+
+    body: () => JSON.stringify({ id: media.value.media_id }),
+  }
+
+  // Get share link
+  await apiRequestPost(postConfigs)
 }
 
 /* Utility Functions */

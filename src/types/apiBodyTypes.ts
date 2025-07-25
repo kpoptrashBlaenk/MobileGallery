@@ -1,4 +1,4 @@
-import { ChosenTags, AndTags } from './tagTypes'
+import { AndTags, ChosenTags } from './tagTypes'
 
 export type IdBody = {
   id: number

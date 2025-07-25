@@ -12,7 +12,8 @@ import {
   uploadMedia,
 } from '@/api/models/media'
 import { findPersonByName } from '@/api/models/person'
-import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody } from '@/types'
+import { findShareToken } from '@/api/models/share'
+import { ChosenTags, IdBody, MediaEditBody, MediaFilterBody, TokenBody } from '@/types'
 import { getAlbumsIds, getLocationId, getPeopleIds } from '@/utils/tagIds'
 import { Request, Response } from 'express'
 import fs from 'fs'
@@ -29,7 +30,7 @@ export async function getMediaRoute(req: Request, res: Response) {
     const peopleIds = await getPeopleIds(people)
     const medias = await getAllMedias(albumsIsAnd, peopleIsAnd, albumIds, locationId, peopleIds, season)
 
-    const base64Medias = Promise.all(
+    const finalMedias = Promise.all(
       medias.rows.map(async (media) => {
         return {
           ...media,
@@ -38,12 +39,36 @@ export async function getMediaRoute(req: Request, res: Response) {
       }),
     )
 
-    res.status(200).json(await base64Medias)
+    res.status(200).json(await finalMedias)
     return
   } catch (error) {
     console.error(error)
     res.status(500).json('Error getting medias.')
     return
+  }
+}
+
+export async function findMediaRoute(req: Request, res: Response) {
+  const { token }: TokenBody = req.body
+
+  if (!token) {
+    res.status(422).json('No media provided.')
+    return
+  }
+
+  try {
+    const media = await findShareToken(token)
+
+    if (!media || media.rowCount === 0) {
+      res.status(404).json('Media not found.')
+      return
+    }
+
+    res.status(200).json(`${req.protocol}://${req.get('host')}/uploads/${path.basename(media.rows[0].path)}`)
+    return
+  } catch (error) {
+    console.error(error)
+    res.status(500).json('Error finding media.')
   }
 }
 

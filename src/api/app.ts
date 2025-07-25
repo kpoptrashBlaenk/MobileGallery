@@ -1,8 +1,6 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import os from 'os'
-import path from 'path'
 import authRouter from './router/authRoutes'
 import guestRouter from './router/guestRoutes'
 import router from './router/otherRoutes'
@@ -25,6 +23,6 @@ app.use('/api/auth', authRouter)
 app.use('/api/guest', guestRouter)
 app.use('/api', router)
 
-app.use('/uploads', express.static(path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads')))
+app.use('/uploads', express.static('C:/Projects/uploads'))
 
 export default app

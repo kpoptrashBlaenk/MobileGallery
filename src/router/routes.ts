@@ -6,6 +6,7 @@ import ExtraPage from '@/views/auth/ExtraPage.vue'
 import MainPage from '@/views/auth/MainPage.vue'
 import GuestPage from '@/views/guest/GuestPage.vue'
 import VerificationPage from '@/views/guest/VerificationPage.vue'
+import OtherPage from '@/views/other/OtherPage.vue'
 import { createRouter, createWebHistory } from '@ionic/vue-router'
 import { RouteRecordRaw } from 'vue-router'
 import authOnly from './middleware/auth'
@@ -40,7 +41,6 @@ const routes: Array<RouteRecordRaw> = [
         name: 'extra',
         redirect: '/qr',
         component: ExtraPage,
-
         children: [
           // QR
           { path: '/qr', name: 'qr', component: QRPage },
@@ -60,6 +60,15 @@ const routes: Array<RouteRecordRaw> = [
       // Verification
       { path: '/verification', name: 'verification', component: VerificationPage },
     ],
+  },
+
+  // Other
+  {
+    path: '/other',
+    name: 'other',
+    redirect: '/main',
+    component: OtherPage,
+    children: [],
   },
 
   // Default

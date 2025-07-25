@@ -1,9 +1,9 @@
 import { Router } from 'express'
 import fs from 'fs'
 import multer from 'multer'
-import os from 'os'
 import path from 'path'
 import qrRoute from '../controllers/authentication/qr'
+import { shareRoute } from '../controllers/authentication/share'
 import { deleteMediaRoute, editMediaRoute, getMediaRoute, uploadMediaRoute } from '../controllers/media/media'
 import { addAlbumRoute, getAlbumRoute } from '../controllers/tag/album'
 import { addLocationRoute, getLocationRoute } from '../controllers/tag/location'
@@ -14,7 +14,7 @@ import authOnly from './middleware/auth'
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const uploadPath = path.join(os.homedir(), 'OneDrive - SNCF', 'Bureau', 'uploads')
+      const uploadPath = path.join('C:/Projects/uploads')
       if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath, { recursive: true })
       cb(null, uploadPath)
     },
@@ -33,6 +33,7 @@ authRouter.use(authOnly)
 
 // Auth
 authRouter.get('/auth/qr', qrRoute) // Generate QR code
+authRouter.post('/auth/share', shareRoute) // Generate sharing link
 
 // Tag/Person
 authRouter.get('/tag/person/get', getPersonRoute) // Get all people

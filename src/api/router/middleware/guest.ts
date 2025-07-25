@@ -1,4 +1,3 @@
-
 import { sessionExist } from '@/utils/apiFunctions'
 import { NextFunction, Request, Response } from 'express'
 

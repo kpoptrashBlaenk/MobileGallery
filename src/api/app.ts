@@ -1,9 +1,9 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import Auth from './routes/authentication/index'
-// import Media from './routes/media/index'
-// import Tag from './routes/tag/index'
+import authRouter from './router/authRoutes'
+import guestRouter from './router/guestRoutes'
+import router from './router/otherRoutes'
 
 const app = express()
 
@@ -19,9 +19,10 @@ app.use(express.json({ limit: '1000mb' })) // To use JSON
 app.use(cookieParser())
 
 // Routes
-app.use('/api/auth', Auth)
-// app.use('/api/media', Media)
-// app.use('/api/tag', Tag)
-app.use('/uploads', express.static('./uploads'))
+app.use('/api/auth', authRouter)
+app.use('/api/guest', guestRouter)
+app.use('/api', router)
+
+app.use('/uploads', express.static('C:/Projects/uploads'))
 
 export default app

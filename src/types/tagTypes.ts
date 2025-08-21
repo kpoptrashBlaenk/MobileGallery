@@ -1,11 +1,32 @@
+import { Ref } from 'vue'
+
 export interface ChosenTags {
-  people: number[]
-  location: number
+  people: string[]
+  location: string
   season: string
-  albums: number[]
+  albums: string[]
 }
 
 export interface AndTags {
-  personIsAnd: boolean
+  peopleIsAnd: boolean
   albumsIsAnd: boolean
+}
+
+export type TagContext = 'people' | 'location' | 'season' | 'albums'
+
+export type ApiTagContext = 'person' | 'location' | 'season' | 'album'
+
+export type IsAnd = {
+  show: boolean
+  ref: Ref<boolean> | boolean
+}
+
+export type ModalOptions = {
+  tagContext: TagContext
+  apiTagContext: ApiTagContext
+  selected: Ref<string | string[]>
+  multiple: boolean
+  static: boolean
+  fetch?: () => string[]
+  isAnd?: IsAnd
 }

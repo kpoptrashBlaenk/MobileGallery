@@ -1,9 +1,19 @@
 <template>
   <ion-app>
-    <ion-router-outlet />
+    <ion-router-outlet :forceDestruct="true" />
   </ion-app>
 </template>
 
 <script setup lang="ts">
-import { IonApp, IonRouterOutlet } from '@ionic/vue';
+/* Import */
+import { App } from '@capacitor/app'
+import { IonApp, IonRouterOutlet, useBackButton } from '@ionic/vue'
+import { onMounted } from 'vue'
+
+/* Mounted Lifecycle Hook */
+onMounted(() => {
+  useBackButton(-1, () => {
+    App.exitApp()
+  })
+})
 </script>

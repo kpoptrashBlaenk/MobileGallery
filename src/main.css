@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+/* Causes everything to be forever m-0, p-0 etc */
+/* @import 'tailwindcss/preflight';*/
+@import 'tailwindcss/utilities';
+
+/* Vue Transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+/* IonToast */
+ion-toast::part(container) {
+  justify-content: center;
+}
+
+ion-toast::part(message) {
+  font-size: larger;
+}
+
+/* IonInputOtp */
+ion-input-otp div[role='group'] {
+  gap: 5px !important;
+}
